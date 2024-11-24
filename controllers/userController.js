@@ -6,8 +6,8 @@ exports.updateUser = async (req, res) => {
 
   try {
     const updatedUser = await User.update(userId, updates);
-    res.status(200).json({ message: 'User updated successfully.', updatedUser });
+    res.status(200).json({ status: 'success', message: 'User updated successfully.', data: updatedUser });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update user.' });
+    res.status(500).json({status: 'error', message: 'Failed to update user.' });
   }
 };

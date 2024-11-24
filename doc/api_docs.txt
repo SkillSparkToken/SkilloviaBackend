@@ -1,0 +1,11 @@
+AUTH ROUTES
+---------------------
+/api/auth/register (POST - BODY: phone)
+/api/auth/login (POST - BODY: email, password)
+/api/auth/get/refreshtoken (GET - BODY: token)
+/api/auth/get/refreshtokenweb (GET )
+/api/auth/reset/password/:id  (PUT - BODY: password  -  PARAMS: id)
+
+
+USER ROUTES
+/api/users/update/:id  (PUT - BODY: email, firstname, lastname, gender, password  -  PARAMS: id )
