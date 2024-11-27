@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+const twilioClient = require('../config/twilio');
 
 
 // handles user registration
@@ -125,6 +126,22 @@ const resetPassword = async (req, res) => {
 }
 
 
+const verifyPhone = async (req, res) => {
+  const { phone } = req.body;
+
+  try {
+    // Send a verification code
+    const verification = await twilioClient.verify
+      .services(process.env.TWILIO_SERVICE_SID)
+      .verifications.create({ to: phone, channel: 'sms' });
+
+    res.status(200).json({status: 'success', message: 'Verification code sent.', data: verification });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: 'Failed to send verification code.' });
+  }
+};
+
+
 function generateAccessToken(user) {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '600s'});
 }
@@ -142,4 +159,5 @@ module.exports = {
   refreshToken,
   refreshTokenWeb,
   resetPassword,
+  verifyPhone,
 }

@@ -84,6 +84,28 @@ class User {
     return result.rows[0];
   }
 
+
+  static async changeNotificationType(userId, type) {
+    const result = await pool.query(
+      `UPDATE users 
+       SET notification_type = COALESCE($1, type)
+       WHERE id = $2 RETURNING *`,
+      [type, userId]
+    );
+    return result.rows[0];
+  }
+
+
+  static async changeAppearanceMode(userId, mode) {
+    const result = await pool.query(
+      `UPDATE users 
+       SET appearance_mode = COALESCE($1, mode)
+       WHERE id = $2 RETURNING *`,
+      [mode, userId]
+    );
+    return result.rows[0];
+  }
+
 }
 
 module.exports = User;

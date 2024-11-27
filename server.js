@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const skillRoutes = require('./routes/skillRoutes');
+
 
 const app = express();
 
@@ -14,6 +16,7 @@ app.use(bodyParser.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/skills', skillRoutes);
 
 // Server
 const PORT = process.env.PORT || 3000;

@@ -5,7 +5,16 @@ AUTH ROUTES
 /api/auth/get/refreshtoken (GET - BODY: token)
 /api/auth/get/refreshtokenweb (GET )
 /api/auth/reset/password/:id  (PUT - BODY: password  -  PARAMS: id)
+/api/auth/verifyphone  (POST - BODY: phone)
 
 
 USER ROUTES
 /api/users/update/:id  (PUT - BODY: email, firstname, lastname, gender, password  -  PARAMS: id )
+/api/users/settings/notification (PUT - BODY: notification_type )
+/api/users/settings/appearance (PUT - BODY: appearance_mode )
+
+
+SKILL ROUTES
+/api/skills (POST - BODY: skill_type, experience_level, hourly_rate, description )
+/api/skills (PUT - BODY: skill_type, experience_level, hourly_rate, description  PARAMS:  skill_id )
+/api/skills (DELETE - PARAMS:  skill_id )
