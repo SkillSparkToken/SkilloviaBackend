@@ -2,19 +2,13 @@ const pool = require('../config/db');
 const bcrypt = require('bcrypt');
 
 class User {
-  static async create(phone) {
-    const result = await pool.query(
-      'INSERT INTO users (phone) VALUES ($1) RETURNING id, phone',
-      [phone]
-    );
-    return result.rows[0];
-  }
+  static async create(data) {
+    const { phone, email, firstname, lastname, gender, password } = data;
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-
-  static async findByPhone(phone) {
     const result = await pool.query(
-      'SELECT * FROM users WHERE phone = $1',
-      [phone]
+      'INSERT INTO users (phone,email,firstname,lastname,gender,password) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
+      [phone,email,firstname,lastname,gender,hashedPassword]
     );
     return result.rows[0];
   }

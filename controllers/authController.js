@@ -6,11 +6,8 @@ const twilioClient = require('../config/twilio');
 
 // handles user registration
 const registerUser = async (req, res) => {
-  const { phone, password } = req.body;
-
   try {
-    //const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create(phone);
+    const user = await User.create(req.body);
 
     res.status(201).json({ status: 'success', message: 'User registered successfully.', data: user });
   } catch (error) {
