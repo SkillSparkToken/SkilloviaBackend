@@ -5,7 +5,8 @@ AUTH ROUTES
 /api/auth/get/refreshtoken (GET - BODY: token)
 /api/auth/get/refreshtokenweb (GET )
 /api/auth/reset/password/:id  (PUT - BODY: password  -  PARAMS: id)
-/api/auth/verifyphone  (POST - BODY: phone)
+/api/auth/sendverificationcode  (POST - BODY: phone)
+/api/auth/verifyphone  (POST - BODY: phone, code)
 
 
 USER ROUTES
