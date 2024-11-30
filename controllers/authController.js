@@ -7,9 +7,18 @@ const twilioConfig = require('../config/twilio');
 // handles user registration
 const registerUser = async (req, res) => {
   try {
-    const user = await User.create(req.body);
+    const {phone} = req.body;
 
-    res.status(201).json({ status: 'success', message: 'User registered successfully.', data: user });
+    const verification = await twilioConfig.sendVerificationCode(phone);
+    if(verification.status == 'approved' || verification.status == 'pending'){
+      //res.status(200).json({status: 'success', message: 'Verification code sent.', data: verification });
+
+      const user = await User.create(req.body);
+      res.status(201).json({ status: 'success', message: 'User registered successfully.', data: user });
+    } else {
+      res.status(400).json({ status: 'Twilio error', message: 'Failed to send verification code.', data: verification });
+    }
+    
   } catch (error) {
     res.status(500).json({status: 'error', message: 'Registration failed.', data: error });
   }
