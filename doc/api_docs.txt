@@ -1,6 +1,6 @@
 AUTH ROUTES
 ---------------------
-/api/auth/register (POST - BODY: phone)
+/api/auth/register (POST - BODY: phone, email, firstname, lastname, gender, password )
 /api/auth/login (POST - BODY: email, phone, password)
 /api/auth/get/refreshtoken (GET - BODY: token)
 /api/auth/get/refreshtokenweb (GET )
