@@ -5,6 +5,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const skillRoutes = require('./routes/skillRoutes');
+const skillRoutes = require('./routes/suggestskillRoutes');
 
 
 const app = express();
@@ -17,6 +18,7 @@ app.use(bodyParser.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/skills', skillRoutes);
+app.use('/api/suggestedskills', suggestskillRoutes);
 
 // Server
 const PORT = process.env.PORT || 3000;

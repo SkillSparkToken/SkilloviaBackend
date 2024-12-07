@@ -5,8 +5,8 @@ class Skill {
     static async create(userId, data) {
         const { skill_type, experience_level, hourly_rate, description } = data;
         const result = await pool.query(
-          'INSERT INTO skills (skill_type,experience_level,hourly_rate,description) VALUES ($1, $2, $3, $4) WHERE user_id = $5  RETURNING *',
-          [skill_type,experience_level,hourly_rate,description,userId]
+          'INSERT INTO skills (user_id,skill_type,experience_level,hourly_rate,description) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+          [userId,skill_type,experience_level,hourly_rate,description]
         );
         return result.rows[0];
     }
@@ -39,6 +39,79 @@ class Skill {
     
         return result.rows[0];
     }
+
+
+    static async retrievePublishedSkill(status) {
+        const result = await pool.query(
+            `
+            SELECT 
+                skills.*, 
+                users.user_id AS creator_id, 
+                (users.firstname || ' ' || users.lastname) AS creator_name, 
+                users.email AS creator_email 
+            FROM skills 
+            INNER JOIN users ON skills.user_id = users.id
+            WHERE skills.approval_status = $1
+            `,
+            [status]
+        );
+        return result.rows[0];
+    }
+    
+
+    static async searchSkillsByName(skillName) {
+        const result = await pool.query(
+            `
+            SELECT 
+                skills.*, 
+                users.user_id AS creator_id, 
+                (users.firstname || ' ' || users.lastname) AS creator_name, 
+                users.email AS creator_email 
+            FROM skills 
+            INNER JOIN users ON skills.user_id = users.id
+            WHERE skills.skill_type ILIKE $1
+            `,
+            [`%${skillName}%`]
+        );
+        return result.rows;
+    }
+
+    
+    static async searchSkillsByCreatorName(creatorName) {
+        const result = await pool.query(
+            `
+            SELECT 
+                skills.*, 
+                users.user_id AS creator_id, 
+                (users.firstname || ' ' || users.lastname) AS creator_name, 
+                users.email AS creator_email 
+            FROM skills 
+            INNER JOIN users ON skills.user_id = users.id
+            WHERE (users.firstname || ' ' || users.lastname) ILIKE $1
+            `,
+            [`%${creatorName}%`]
+        );
+        return result.rows;
+    }
+
+
+    static async searchSkillsBySparktoken(sparkToken) {
+        const result = await pool.query(
+            `
+            SELECT 
+                skills.*, 
+                users.user_id AS creator_id, 
+                (users.firstname || ' ' || users.lastname) AS creator_name, 
+                users.email AS creator_email 
+            FROM skills 
+            INNER JOIN users ON skills.user_id = users.id
+            WHERE skills.spark_token ILIKE $1
+            `,
+            [`%${sparkToken}%`]
+        );
+        return result.rows;
+    }
+    
 
 }
 
