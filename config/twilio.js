@@ -11,15 +11,18 @@ class TwilioConfig {
      * @param {string} phone - The recipient's phone number.
      * @returns {Promise<object>} - The Twilio message object or an error.
      */
+
     async sendVerificationCode(phone) {
         try {
-            const message = await this.client.messages.create({
-                from: this.phoneNumber, 
+            const verification = await this.client.verify.v2
+            .services(process.env.TWILIO_SERVICE_SID)
+            .verifications.create({
+                channel: "sms",
                 to: phone,
-                body: 'Your verification code is: ',
             });
-            console.log(`Verification code sent to ${phone}:`, message.sid);
-            return message;
+            
+            console.log(verification.sid);
+            return verification;
         } catch (error) {
             console.error('Error sending verification code:', error.message || error);
             return error.message || error;
@@ -35,18 +38,17 @@ class TwilioConfig {
      * @returns {Promise<boolean>} - Returns true if verified successfully, otherwise false.
      */
 
-
     async verifyCode(phone, code) {
         try {
-            const verificationCheck = await this.client.verify.v2.services(process.env.TWILIO_ACCOUNT_SID)
+            const verificationCheck = await this.client.verify.v2.services(process.env.TWILIO_SERVICE_SID)
                 .verificationChecks
                 .create({ code: code, to: phone});
             
             if (verificationCheck.status === 'approved') {
-                console.log('Verification successful for:', phone);
+                console.log('Verification successful for:', verificationCheck);
                 return verificationCheck;
             } else {
-                console.log('Verification failed for:', phone);
+                console.log('Verification failed for:', verificationCheck);
                 return verificationCheck;
             }
         } catch (error) {

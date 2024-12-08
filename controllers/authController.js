@@ -157,16 +157,11 @@ const sendVerificationCode = async (req, res) => {
   try {
     // Send a verification code
     const verification = await twilioConfig.sendVerificationCode(phone);
-    if(verification.status == 'approved' || verification.status == 'pending'){
-      res.status(200).json({status: 'success', message: 'Verification code sent.', data: verification });
-    } else {
-      res.status(400).json({ status: 'Twilio error', message: 'Failed to send verification code.', data: verification });
-    }
-    
+    res.status(200).json({status: 'success', message: 'Verification code sent.', data: verification });
 
   } catch (error) {
     console.error('Twilio Test Error:', error.message);
-    res.status(400).json({ status: 'Twilio error', message: 'Failed to send verification code.', data: error.message });
+    res.status(400).json({ status: 'Twilio error', message: 'An error occured. Try again', data: error.message });
   }
 };
 
@@ -177,17 +172,11 @@ const verifyPhone = async (req, res) => {
   try {
     const isVerified = await twilioConfig.verifyCode(phone, code);
 
-    if(isVerified == 'Success'){
-      res.status(200).json({status: 'success', message: 'Verification was successful.', data: isVerified });
-    } else if(isVerified == 'Failed'){
-      res.status(400).json({status: 'failed', message: 'Verification was not successful.', data: isVerified });
-    } else {
-      res.status(400).json({ status: 'Twilio error', message: 'Failed to verify code.', data: isVerified });
-    }
+    res.status(200).json({status: 'success', message: 'Verification was successful.', data: isVerified });
 
   } catch (error) {
     console.error('Twilio Test Error:', error.message);
-    res.status(400).json({ status: 'Twilio error', message: 'Failed to verify code.', data: error.message });
+    res.status(400).json({ status: 'Twilio error', message: 'An error occured. Try again', data: error.message });
   }
 };
 
