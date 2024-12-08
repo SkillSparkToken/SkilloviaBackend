@@ -5,8 +5,15 @@ SKILL ROUTES
 /api/skills/searchsparktoken/:term (GET)
 
 
-SUGGESTED ROUTES
+SUGGESTED SKILL ROUTES
 /api/suggestedskills (POST - BODY: name)
 /api/suggestedskills/:id (PUT - BODY: status)
 /api/suggestedskills/:id (DELETE)
 /api/suggestedskills/bystatus/:status (GET - [status: 'pending', 'rejected', 'accepted'])
+
+
+FOLLOWS ROUTES
+/api/follows/follow/:follower_id  (POST)
+/api/follows/unfollow/:follower_id (DELETE)
+/api/follows/getfollowers (GET)
+/api/follows/getfollowings (GET)

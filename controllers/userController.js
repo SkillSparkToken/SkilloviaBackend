@@ -37,3 +37,15 @@ exports.changeAppearanceMode = async (req, res) => {
     res.status(500).json({status: 'error', message: 'Failed to update appearance mode.' });
   }
 };
+
+
+exports.getProfileByUserId = async (req, res) => {
+  const userId = parseInt(req.params.id)   
+
+  try {
+    const skill = await Skill.getProfileByUserId(userId);
+    res.status(200).json({ status: 'success', message: 'Uer profile retrieved successfully.', data: skill });
+  } catch (error) {
+    res.status(500).json({status: 'error', message: 'Failed to retrieve profile' });
+  }
+};

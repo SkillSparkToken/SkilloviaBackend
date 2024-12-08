@@ -99,6 +99,25 @@ class User {
     return result.rows[0];
   }
 
+
+  static async getProfileByUserId(id) {
+    const result = await pool.query(
+        `
+        SELECT 
+            users.*, 
+            skills.description AS description,
+            skills.skill_type AS skill_type,
+            skills.experience_level AS experience_level,
+            skills.hourly_rate AS hourly_rate 
+        FROM users
+        INNER JOIN skills ON users.id = skills.user_id
+        WHERE users.id = $1
+        `,
+        [id]
+    );
+    return result.rows;
+}
+
 }
 
 module.exports = User;
