@@ -4,10 +4,11 @@ const bcrypt = require('bcrypt');
 class User {
   static async create(data) {
     const {phone, email, firstname, lastname, gender, password } = data;
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
       'INSERT INTO users (phone, email, firstname, lastname, gender, password) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
-      [phone, email, firstname, lastname, gender, password]
+      [phone, email, firstname, lastname, gender, hashedPassword]
     );
     return result.rows[0];
   }
