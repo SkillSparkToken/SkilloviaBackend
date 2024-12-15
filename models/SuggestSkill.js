@@ -38,12 +38,23 @@ class SuggestSkill {
     }
 
 
+    static async findSuggestedSkill(data) {
+        const { name } = data;
+
+        const result = await pool.query(
+          'SELECT * FROM suggest_skills WHERE name = $1',
+          [name]
+        );
+        return result.rows[0];
+      }
+
+
     static async retrieveSuggestedSkills(status) {
         const result = await pool.query(
             `
             SELECT 
                 suggest_skills.*, 
-                users.user_id AS creator_id, 
+                users.id AS creator_id, 
                 (users.firstname || ' ' || users.lastname) AS creator_name, 
                 users.email AS creator_email 
             FROM suggest_skills 
@@ -52,7 +63,7 @@ class SuggestSkill {
             `,
             [status]
         );
-        return result.rows[0];
+        return result.rows;
     }
     
 
