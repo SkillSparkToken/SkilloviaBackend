@@ -14,7 +14,7 @@ SUGGESTED SKILL ROUTES
 
 
 FOLLOWS ROUTES
-/api/follows/follow/:follower_id  (POST)
-/api/follows/unfollow/:follower_id (DELETE)
+/api/follows/follow/:following_id  (POST)
+/api/follows/unfollow/:following_id (DELETE)
 /api/follows/getfollowers (GET)
 /api/follows/getfollowings (GET)

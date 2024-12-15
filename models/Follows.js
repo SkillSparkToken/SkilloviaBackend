@@ -37,11 +37,11 @@ class User {
             `
             SELECT 
                 follows.id, 
-                users.user_id AS follower_id, 
+                users.id AS follower_id, 
                 (users.firstname || ' ' || users.lastname) AS follower_name, 
                 users.email AS follower_email 
             FROM follows 
-            INNER JOIN users ON follows.user_id = users.id
+            INNER JOIN users ON follows.following_id = users.id
             WHERE follows.following_id = $1
             `,
             [userId]
@@ -55,11 +55,11 @@ class User {
             `
             SELECT 
                 follows.id, 
-                users.user_id AS following_id, 
+                users.id AS following_id, 
                 (users.firstname || ' ' || users.lastname) AS following_name, 
                 users.email AS following_email 
             FROM follows 
-            INNER JOIN users ON follows.user_id = users.id
+            INNER JOIN users ON follows.follower_id = users.id
             WHERE follows.follower_id = $1
             `,
             [userId]
