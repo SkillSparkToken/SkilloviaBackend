@@ -4,3 +4,6 @@ const pool = new Pool({
 });
 
 module.exports = pool;
+// humaoqjw_skilloviadb
+// humaoqjw_skillovia_u
+// Tw9.rO;!!Elw

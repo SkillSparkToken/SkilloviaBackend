@@ -11,7 +11,7 @@ const registerUser = async (req, res) => {
     res.status(201).json({ status: 'success', message: 'User registered successfully.', data: user });
     
   } catch (error) {
-    res.status(500).json({status: 'error', message: 'Registration failed.', data: error });
+    res.status(500).json({status: 'error', message: 'Registration failed.', data: error.detail });
   }
 };
 
@@ -23,6 +23,7 @@ const login = async (req, res) => {
 
   try {
     const user = await User.findByEmail(email);
+    
     if(user != null){
       const validPass = await bcrypt.compare(password, user.password)
       if(!validPass) {
@@ -35,7 +36,7 @@ const login = async (req, res) => {
 
       const accessToken = generateAccessToken({id:user.id, email:user.email, phone:user.phone});
       const refreshToken = jwt.sign({id:user.id, email:user.email, phone:user.phone}, process.env.REFRESH_TOKEN_SECRET);
-
+      
       // Store refresh token
       const storereFreshToken = await User.storeRefreshToken(refreshToken);
 

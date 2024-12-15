@@ -4,10 +4,13 @@ const bcrypt = require('bcrypt');
 class Skill {
     static async create(userId, data) {
         const { skill_type, experience_level, hourly_rate, description } = data;
+        const approval_status = 'draft'
+
         const result = await pool.query(
-          'INSERT INTO skills (user_id,skill_type,experience_level,hourly_rate,description) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-          [userId,skill_type,experience_level,hourly_rate,description]
+          'INSERT INTO skills (user_id, skill_type, experience_level, hourly_rate, description, approval_status) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
+          [userId,skill_type,experience_level,hourly_rate,description, approval_status]
         );
+
         return result.rows[0];
     }
 
@@ -24,6 +27,19 @@ class Skill {
            WHERE id = $5 AND user_id = $6
            RETURNING *`,
           [skill_type, experience_level, hourly_rate, description, skillId, userId]
+        );
+        return result.rows[0];
+    }
+
+
+    static async updatePublishedStatus(userId, skillId, status) {
+    
+        const result = await pool.query(
+          `UPDATE skills 
+           SET approval_status = COALESCE($1, approval_status)
+           WHERE id = $2 AND user_id = $3
+           RETURNING *`,
+          [status, skillId, userId]
         );
         return result.rows[0];
     }
@@ -46,7 +62,7 @@ class Skill {
             `
             SELECT 
                 skills.*, 
-                users.user_id AS creator_id, 
+                users.id AS user_id, 
                 (users.firstname || ' ' || users.lastname) AS creator_name, 
                 users.email AS creator_email 
             FROM skills 
@@ -55,7 +71,7 @@ class Skill {
             `,
             [status]
         );
-        return result.rows[0];
+        return result.rows;
     }
     
 
@@ -64,12 +80,13 @@ class Skill {
             `
             SELECT 
                 skills.*, 
-                users.user_id AS creator_id, 
+                users.id AS creator_id, 
                 (users.firstname || ' ' || users.lastname) AS creator_name, 
                 users.email AS creator_email 
             FROM skills 
             INNER JOIN users ON skills.user_id = users.id
-            WHERE skills.skill_type ILIKE $1
+            WHERE skills.skill_type ILIKE $1 
+            AND skills.approval_status = 'published'
             `,
             [`%${skillName}%`]
         );
@@ -82,12 +99,13 @@ class Skill {
             `
             SELECT 
                 skills.*, 
-                users.user_id AS creator_id, 
+                users.id AS creator_id, 
                 (users.firstname || ' ' || users.lastname) AS creator_name, 
                 users.email AS creator_email 
             FROM skills 
             INNER JOIN users ON skills.user_id = users.id
-            WHERE (users.firstname || ' ' || users.lastname) ILIKE $1
+            WHERE (users.firstname || ' ' || users.lastname) ILIKE $1 
+            AND skills.approval_status = 'published'
             `,
             [`%${creatorName}%`]
         );
@@ -100,12 +118,13 @@ class Skill {
             `
             SELECT 
                 skills.*, 
-                users.user_id AS creator_id, 
+                users.id AS creator_id, 
                 (users.firstname || ' ' || users.lastname) AS creator_name, 
                 users.email AS creator_email 
             FROM skills 
             INNER JOIN users ON skills.user_id = users.id
-            WHERE skills.spark_token ILIKE $1
+            WHERE skills.spark_token = $1 
+            AND skills.approval_status = 'published'
             `,
             [`%${sparkToken}%`]
         );

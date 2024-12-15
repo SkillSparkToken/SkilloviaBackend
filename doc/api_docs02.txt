@@ -3,6 +3,7 @@ SKILL ROUTES
 /api/skills/searchname/:term (GET)
 /api/skills/searchcreator/:term (GET)
 /api/skills/searchsparktoken/:term (GET)
+/api/skills/publish/:skillId (PUT)     // Change a skill status to published
 
 
 SUGGESTED SKILL ROUTES
