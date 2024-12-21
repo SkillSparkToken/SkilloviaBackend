@@ -8,6 +8,7 @@ CREATE TABLE users (
   password TEXT NOT NULL,
   notification_type ENUM('sms', 'email') NOT NULL DEFAULT 'sms',
   appearance_mode ENUM('light', 'dark', 'system') NOT NULL DEFAULT 'system',
+  photourl VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

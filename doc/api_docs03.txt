@@ -1,0 +1,3 @@
+USER ROUTES
+/api/users/profile/:user_id  (GET)
+/api/users/profile/upload (PUT - BODY: photo )

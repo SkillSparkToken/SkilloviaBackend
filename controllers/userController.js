@@ -49,7 +49,7 @@ exports.getProfileByUserId = async (req, res) => {
       return res.status(404).json({ status: 'error', message: 'User profile not found.' });
     }
 
-    const { id, phone, email, firstname, lastname, gender, password, notification_type, appearance_mode, created_at, updated_at } = data[0];
+    const { id, phone, email, firstname, lastname, gender, password, notification_type, appearance_mode, photourl, created_at, updated_at } = data[0];
 
     // Map skills to an array
     const skills = data.map((item) => ({
@@ -69,6 +69,7 @@ exports.getProfileByUserId = async (req, res) => {
       password,
       notification_type,
       appearance_mode,
+      photourl,
       created_at,
       updated_at,
       skills,
@@ -80,3 +81,51 @@ exports.getProfileByUserId = async (req, res) => {
   }
 };
 
+
+exports.profilePhotoUpload = async (req, res) => {
+  const userId = req.user.id;
+  
+  if(req.filePaths != null){
+    const filePath = req.filePaths;
+    //console.log("PTH ", filePath)
+    const file = filePath.slice(15);
+    
+    try {
+      const mode = await User.changeAvatar(userId, file);
+      res.status(200).json({ status: 'success', message: 'Profile photo updated successfully', data: mode });
+    } catch (error) {
+      res.status(500).json({status: 'error', message: 'Failed to upload photo' });
+    } 
+    
+  } else {
+      res.status(400).send({
+          status: 'error',
+          message: 'No image found',
+          data: null
+      });
+  }
+};
+
+
+exports.profilePhotoUploadS3 = async (req, res) => {
+  const userId = req.user.id;
+  const filePath = req.file.location;
+  
+  if(filePath != null){
+    //console.log("PTH ", filePath)
+    
+    try {
+      const mode = await User.changeAvatar(userId, filePath);
+      res.status(200).json({ status: 'success', message: 'Profile photo updated successfully', data: mode });
+    } catch (error) {
+      res.status(500).json({status: 'error', message: 'Failed to upload photo' });
+    } 
+    
+  } else {
+      res.status(400).send({
+          status: 'error',
+          message: 'No image found',
+          data: null
+      });
+  }
+};

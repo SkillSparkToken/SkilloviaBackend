@@ -119,6 +119,18 @@ class User {
     return result.rows;
 }
 
+
+static async changeAvatar(userId, filepath) {
+  const result = await pool.query(
+    `UPDATE users 
+     SET photourl = COALESCE($1, photourl)
+     WHERE id = $2 RETURNING *`,
+    [filepath, userId]
+  );
+  return result.rows[0];
 }
+
+}
+
 
 module.exports = User;
