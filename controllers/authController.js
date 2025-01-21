@@ -139,15 +139,34 @@ const refreshTokenWeb = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   const userId = parseInt(req.params.id);
-  const {password} = req.body
+  const {password, newPassword} = req.body
 
-  try {
-    const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
-    const user = await User.resetPassword(userId, hashedPassword);
-
-    res.status(201).json({ status: 'success', message: 'Password reset was successful', data: user });
-  } catch (error) {
-    res.status(500).json({status: 'error', message: 'Registration failed.' });
+  if(password != null && newPassword != null){
+    try {
+      const user = await User.findById(userId);
+      
+      const validPass = await bcrypt.compare(password, user.password)
+      if(!validPass) {
+          return res.status(400).send({
+              status: 'error',
+              message: 'Invalid password',
+              data: null
+          }); 
+      } 
+  
+      const hashedPassword = newPassword ? await bcrypt.hash(newPassword, 10) : null;
+      const data = await User.resetPassword(userId, hashedPassword);
+  
+      res.status(201).json({ status: 'success', message: 'Password reset was successful', data: data });
+    } catch (error) {
+      res.status(500).json({status: 'error', message: 'Registration failed.' });
+    }
+  } else {
+    return res.status(400).send({
+      status: 'error',
+      message: 'missing parameters',
+      data: null
+    });
   }
 }
 
@@ -183,7 +202,7 @@ const verifyPhone = async (req, res) => {
 
 
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '600s'});
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '24h'});
 }
 
 

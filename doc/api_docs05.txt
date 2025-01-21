@@ -1,0 +1,10 @@
+SKILL ROUTES
+/api/skills/user/all (GET)   // this endpoint get user skills
+/api/skills/photo/:skill_id (DELETE  -  BODY: key {thumbnail01, thumbnail02, thumbnail03, thumbnail04})   // this endpoint get user skills photo
+
+AUTH ROUTES
+/api/auth/reset/password  (PUT - BODY: password, newPassword)
+
+USERS ROUTES
+/api/users/profile/update/bio (PUT - BODY: bio, location, street, zip_code) // this endpoint updates user bio
+api/users/change/password (PUT - BODY: password, newPassword)

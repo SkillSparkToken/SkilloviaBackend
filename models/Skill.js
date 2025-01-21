@@ -2,7 +2,7 @@ const pool = require('../config/db');
 const bcrypt = require('bcrypt');
 
 class Skill {
-    static async create(userId, data) {
+    /* static async create(userId, data) {
         const { skill_type, experience_level, hourly_rate, description } = data;
         const approval_status = 'draft'
 
@@ -12,10 +12,40 @@ class Skill {
         );
 
         return result.rows[0];
+    } */
+
+    static async create(userId, data) {
+        const { skill_type, experience_level, hourly_rate, description, thumbnails } = data;
+        const approval_status = 'draft';
+        
+        const result = await pool.query(
+            `
+            INSERT INTO skills (
+            user_id, skill_type, experience_level, hourly_rate, description, 
+            approval_status, thumbnail01, thumbnail02, thumbnail03, thumbnail04
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+            RETURNING *
+            `,
+            [
+            userId,
+            skill_type,
+            experience_level,
+            hourly_rate,
+            description,
+            approval_status,
+            thumbnails.thumbnail01,
+            thumbnails.thumbnail02,
+            thumbnails.thumbnail03,
+            thumbnails.thumbnail04,
+            ]
+        );
+        
+        return result.rows[0];
     }
+          
 
 
-    static async update(userId, skillId, updates) {
+    /* static async update(userId, skillId, updates) {
         const { skill_type, experience_level, hourly_rate, description } = updates;
     
         const result = await pool.query(
@@ -29,8 +59,45 @@ class Skill {
           [skill_type, experience_level, hourly_rate, description, skillId, userId]
         );
         return result.rows[0];
-    }
+    } */
 
+
+
+    static async update(userId, skillId, updates) {
+        const { skill_type, experience_level, hourly_rate, description, thumbnails } = updates;
+        
+        const result = await pool.query(
+            `
+            UPDATE skills 
+            SET 
+            skill_type = COALESCE($1, skill_type),
+            experience_level = COALESCE($2, experience_level),
+            hourly_rate = COALESCE($3, hourly_rate),
+            description = COALESCE($4, description),
+            thumbnail01 = COALESCE($5, thumbnail01),
+            thumbnail02 = COALESCE($6, thumbnail02),
+            thumbnail03 = COALESCE($7, thumbnail03),
+            thumbnail04 = COALESCE($8, thumbnail04)
+            WHERE id = $9 AND user_id = $10
+            RETURNING *
+            `,
+            [
+            skill_type,
+            experience_level,
+            hourly_rate,
+            description,
+            thumbnails.thumbnail01,
+            thumbnails.thumbnail02,
+            thumbnails.thumbnail03,
+            thumbnails.thumbnail04,
+            skillId,
+            userId,
+            ]
+        );
+        
+        return result.rows[0];
+    }
+          
 
     static async updatePublishedStatus(userId, skillId, status) {
     
@@ -70,6 +137,24 @@ class Skill {
             WHERE skills.approval_status = $1
             `,
             [status]
+        );
+        return result.rows;
+    }
+
+
+    static async retrieveUserSkill(userId) {
+        const result = await pool.query(
+            `
+            SELECT 
+                skills.*, 
+                users.id AS user_id, 
+                (users.firstname || ' ' || users.lastname) AS creator_name, 
+                users.email AS creator_email 
+            FROM skills 
+            INNER JOIN users ON skills.user_id = users.id
+            WHERE skills.user_id = $1
+            `,
+            [userId]
         );
         return result.rows;
     }
@@ -129,6 +214,28 @@ class Skill {
             [`%${sparkToken}%`]
         );
         return result.rows;
+    }
+
+
+    static async findSkill(id, userId) {
+        const result = await pool.query(
+          'SELECT * FROM skills WHERE id = $1 AND user_id = $2',
+          [id, userId]
+        );
+        return result.rows[0];
+    }
+
+
+    static async deletePhoto(column, userId, skillId) {
+        const nullVal = null
+        const result = await pool.query(
+            `UPDATE skills 
+             SET ${column} = ${nullVal}
+             WHERE id = $1 AND user_id = $2
+             RETURNING *`,
+            [skillId, userId]
+        );
+        return result.rows[0];
     }
     
 

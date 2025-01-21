@@ -50,6 +50,15 @@ class User {
   }
 
 
+  static async findById(id) {
+    const result = await pool.query(
+      'SELECT * FROM users WHERE id = $1',
+      [id]
+    );
+    return result.rows[0];
+  }
+
+
   static async storeRefreshToken(token) {
     const result = await pool.query(
       'INSERT INTO refreshtoken (token) VALUES ($1) RETURNING token',
@@ -109,9 +118,16 @@ class User {
             skills.description AS description,
             skills.skill_type AS skill_type,
             skills.experience_level AS experience_level,
-            skills.hourly_rate AS hourly_rate 
+            skills.hourly_rate AS hourly_rate,
+
+            COALESCE(account.spark_token_balance, 0) AS spark_token_balance,
+            COALESCE(account.cash_balance, 0) AS cash_balance,
+
+            (SELECT COUNT(*) FROM follows WHERE follows.following_id = users.id) AS total_followers,
+            (SELECT COUNT(*) FROM follows WHERE follows.follower_id = users.id) AS total_following
         FROM users
         INNER JOIN skills ON users.id = skills.user_id
+        LEFT JOIN account ON users.id = account.user_id
         WHERE users.id = $1
         `,
         [id]
@@ -126,6 +142,22 @@ static async changeAvatar(userId, filepath) {
      SET photourl = COALESCE($1, photourl)
      WHERE id = $2 RETURNING *`,
     [filepath, userId]
+  );
+  return result.rows[0];
+}
+
+
+static async updateBio(userId, data) {
+  const { bio, location, street, zip_code } = data
+
+  const result = await pool.query(
+    `UPDATE users 
+     SET bio = COALESCE($1, bio),
+        location = COALESCE($2, location),
+        street = COALESCE($3, street),
+        zip_code = COALESCE($4, zip_code)
+     WHERE id = $5 RETURNING *`,
+    [bio, location, street, zip_code, userId]
   );
   return result.rows[0];
 }

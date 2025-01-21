@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const bcrypt = require('bcrypt');
 
 exports.updateUser = async (req, res) => {
   const userId = req.params.id;
@@ -49,7 +50,7 @@ exports.getProfileByUserId = async (req, res) => {
       return res.status(404).json({ status: 'error', message: 'User profile not found.' });
     }
 
-    const { id, phone, email, firstname, lastname, gender, password, notification_type, appearance_mode, photourl, created_at, updated_at } = data[0];
+    const { id, phone, email, firstname, lastname, gender, notification_type, appearance_mode, photourl, bio, spark_token_balance, cash_balance, total_followers, total_following, created_at, updated_at } = data[0];
 
     // Map skills to an array
     const skills = data.map((item) => ({
@@ -66,10 +67,14 @@ exports.getProfileByUserId = async (req, res) => {
       firstname,
       lastname,
       gender,
-      password,
       notification_type,
       appearance_mode,
       photourl,
+      bio,
+      spark_token_balance, 
+      cash_balance, 
+      total_followers, 
+      total_following,
       created_at,
       updated_at,
       skills,
@@ -129,3 +134,50 @@ exports.profilePhotoUploadS3 = async (req, res) => {
       });
   }
 };
+
+
+exports.updateBio = async (req, res) => {
+  const userId = req.user.id;
+  
+  try {
+    const mode = await User.updateBio(userId, req.body);
+    res.status(200).json({ status: 'success', message: 'Bio updated successfully', data: mode });
+  } catch (error) {
+    res.status(500).json({status: 'error', message: 'Failed to update bio' });
+  }
+};
+
+
+exports.changePassword = async (req, res) => {
+  const userId = req.user.id //parseInt(req.params.id);
+  const {password, newPassword} = req.body
+
+  if(password != null && newPassword != null){
+    try {
+      const user = await User.findById(userId);
+      
+      const validPass = await bcrypt.compare(password, user.password)
+      if(!validPass) {
+          return res.status(400).send({
+              status: 'error',
+              message: 'Invalid password',
+              data: null
+          }); 
+      } 
+  
+      const hashedPassword = newPassword ? await bcrypt.hash(newPassword, 10) : null;
+      const data = await User.resetPassword(userId, hashedPassword);
+  
+      res.status(201).json({ status: 'success', message: 'Password reset was successful', data: data });
+    } catch (error) {
+      res.status(500).json({status: 'error', message: 'Password reset failed.' });
+    }
+  } else {
+    return res.status(400).send({
+      status: 'error',
+      message: 'missing parameters',
+      data: null
+    });
+  }
+};
+

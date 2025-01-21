@@ -1,5 +1,6 @@
 const express = require('express');
-const { updateUser, changeAppearanceMode, changeNotificationType, getProfileByUserId, profilePhotoUpload, profilePhotoUploadS3} = require('../controllers/userController');
+const { updateUser, changeAppearanceMode, changeNotificationType, getProfileByUserId, 
+   profilePhotoUpload, profilePhotoUploadS3, updateBio, changePassword} = require('../controllers/userController');
 const router = express.Router();
 const verify = require("../middlewares/verifyToken")
 const multer = require('multer');
@@ -38,5 +39,7 @@ router.put('/settings/notification', verify, changeNotificationType);
 router.get('/profile/:id', verify, getProfileByUserId);
 router.put('/profile/upload', verify, upload.single('photo'), profilePhotoUpload);
 //router.put('/profile/upload/aws', verify, uploads3.single('photo'), profilePhotoUploadS3);
+router.put('/profile/update/bio', verify, updateBio);
+router.put('/change/password', verify, changePassword);
 
 module.exports = router;

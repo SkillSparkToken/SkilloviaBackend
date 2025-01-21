@@ -1,0 +1,11 @@
+const express = require('express');
+const { retrieveMessage, sendMessage, markAsRead } = require('../controllers/messageController');
+const verify = require("../middlewares/verifyToken")
+const router = express.Router();
+
+
+router.post('/', verify, sendMessage);
+router.get('/:senderId/:receiverId', verify, retrieveMessage);
+router.put('/markasread/:messageId', verify, markAsRead);
+
+module.exports = router;
