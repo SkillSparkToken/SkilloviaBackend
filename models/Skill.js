@@ -99,14 +99,14 @@ class Skill {
     }
           
 
-    static async updatePublishedStatus(userId, skillId, status) {
+    static async updatePublishedStatus(skillId, status) {
     
         const result = await pool.query(
           `UPDATE skills 
            SET approval_status = COALESCE($1, approval_status)
-           WHERE id = $2 AND user_id = $3
+           WHERE id = $2
            RETURNING *`,
-          [status, skillId, userId]
+          [status, skillId]
         );
         return result.rows[0];
     }
@@ -131,7 +131,8 @@ class Skill {
                 skills.*, 
                 users.id AS user_id, 
                 (users.firstname || ' ' || users.lastname) AS creator_name, 
-                users.email AS creator_email 
+                users.email AS creator_email,
+                users.photourl 
             FROM skills 
             INNER JOIN users ON skills.user_id = users.id
             WHERE skills.approval_status = $1
@@ -149,7 +150,8 @@ class Skill {
                 skills.*, 
                 users.id AS user_id, 
                 (users.firstname || ' ' || users.lastname) AS creator_name, 
-                users.email AS creator_email 
+                users.email AS creator_email,
+                users.photourl 
             FROM skills 
             INNER JOIN users ON skills.user_id = users.id
             WHERE skills.user_id = $1
@@ -167,7 +169,8 @@ class Skill {
                 skills.*, 
                 users.id AS creator_id, 
                 (users.firstname || ' ' || users.lastname) AS creator_name, 
-                users.email AS creator_email 
+                users.email AS creator_email,
+                users.photourl 
             FROM skills 
             INNER JOIN users ON skills.user_id = users.id
             WHERE skills.skill_type ILIKE $1 
@@ -186,7 +189,8 @@ class Skill {
                 skills.*, 
                 users.id AS creator_id, 
                 (users.firstname || ' ' || users.lastname) AS creator_name, 
-                users.email AS creator_email 
+                users.email AS creator_email,
+                users.photourl 
             FROM skills 
             INNER JOIN users ON skills.user_id = users.id
             WHERE (users.firstname || ' ' || users.lastname) ILIKE $1 
@@ -205,7 +209,8 @@ class Skill {
                 skills.*, 
                 users.id AS creator_id, 
                 (users.firstname || ' ' || users.lastname) AS creator_name, 
-                users.email AS creator_email 
+                users.email AS creator_email,
+                users.photourl
             FROM skills 
             INNER JOIN users ON skills.user_id = users.id
             WHERE skills.spark_token = $1 
@@ -236,6 +241,27 @@ class Skill {
             [skillId, userId]
         );
         return result.rows[0];
+    }
+
+
+
+    static async searchSkillsByType(skillType) {
+        const result = await pool.query(
+            `
+            SELECT 
+                skills.*, 
+                users.id AS creator_id, 
+                (users.firstname || ' ' || users.lastname) AS creator_name, 
+                users.email AS creator_email,
+                users.photourl
+            FROM skills 
+            INNER JOIN users ON skills.user_id = users.id
+            WHERE skills.skill_type ILIKE $1 
+            AND skills.approval_status = 'published'
+            `,
+            [`%${skillType}%`]
+        );
+        return result.rows;
     }
     
 

@@ -86,12 +86,11 @@ exports.updateSkill = async (req, res) => {
 
 
 exports.updatePublishedStatus = async (req, res) => {
-  const userId = req.user.id;
   const skillId = parseInt(req.params.id) 
   const status = 'published';
 
   try {
-    const skill = await Skill.updatePublishedStatus(userId, skillId, status);
+    const skill = await Skill.updatePublishedStatus(skillId, status);
     res.status(200).json({ status: 'success', message: 'Skill published successfully.', data: skill });
   } catch (error) {
     res.status(500).json({status: 'error', message: 'Failed to update skill.', data: error  });
@@ -216,5 +215,22 @@ exports.deleteSkillPhoto = async (req, res) => {
     res.status(200).json({ status: 'success', message: 'Skill photo deleted successfully.', data: skill });
   } catch (error) {
     res.status(500).json({status: 'error', message: 'Failed to delete skill photo.', data: error });
+  }
+};
+
+
+exports.searchSkillsByType = async (req, res) => {
+  const searchTerm = req.params.term  
+
+  try {
+    const skill = await Skill.searchSkillsByType(searchTerm);
+    
+    if(skill && skill.length > 0){
+      res.status(200).json({ status: 'success', message: 'Search result retrieved successfully.', data: skill });
+    } else {
+      res.status(200).json({ status: 'success', message: 'No record found', data: null });
+    }
+  } catch (error) {
+    res.status(500).json({status: 'error', message: 'Failed to retrieve skills', data: error });
   }
 };

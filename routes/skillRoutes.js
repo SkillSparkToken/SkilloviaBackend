@@ -8,7 +8,8 @@ const {  createSkill,
    searchSkillsBySparktoken, 
    updatePublishedStatus, 
    retrieveUserSkill,
-   deleteSkillPhoto
+   deleteSkillPhoto,
+   searchSkillsByType
 } = require('../controllers/skillController');
 const router = express.Router();
 const verify = require("../middlewares/verifyToken")
@@ -49,6 +50,7 @@ router.get('/', verify, retrievePublishedSkill);
 router.get('/searchname/:term', verify, searchSkillsByName);
 router.get('/searchcreator/:term', verify, searchSkillsByCreatorName);
 router.get('/searchsparktoken/:term', verify, searchSkillsBySparktoken);
+router.get('/search/type/:term', verify, searchSkillsByType);
 router.get('/user/all', verify, retrieveUserSkill);
 router.delete('/photo/:id', verify, deleteSkillPhoto);
 
