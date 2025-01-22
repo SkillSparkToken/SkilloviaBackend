@@ -73,6 +73,31 @@ class Kyc {
         return result.rows;
     }
 
+
+    static async getUserKyc(id, method) {
+        const result = await pool.query(
+            `
+            SELECT *
+            FROM kyc
+            WHERE user_id = $1 AND kyc_method = $2
+            `,
+            [id, method]
+        );
+        return result.rows;
+    }
+
+
+    static async deleteKyc(userId, id, method) {
+        const result = await pool.query(
+            `DELETE FROM kyc 
+             WHERE id = $1 AND user_id = $2 AND kyc_method = $3
+             RETURNING *`,
+            [id, userId, method]
+        );
+    
+        return result.rows[0];
+    }
+
 }
 
 

@@ -1,10 +1,26 @@
 const express = require('express');
-const {uploadIdentity, uploadUtilityBill, changeKycStatus, retrieveUserKycStatus, retrievePendingIdentityKyc,
-    retrievePendingUtilityKyc, retrieveApprovedIdentityKyc, retrieveApprovedUtilityKyc
- } = require('../controllers/kycController');
-const {addBillingMethod, retrieveBillingMethods, removeBillingCard, addWithdrawMethod,
-    retrieveWithdrawalMethods, removeWithdrawalAccount
+const {uploadIdentity, 
+   uploadUtilityBill, 
+   changeKycStatus, 
+   retrieveUserKycStatus, 
+   retrievePendingIdentityKyc,
+   retrievePendingUtilityKyc, 
+   retrieveApprovedIdentityKyc, 
+   retrieveApprovedUtilityKyc,
+   retrieveUserIdentityKyc,
+   retrieveUserUtilityKyc,
+   removeUserUtilityKyc,
+   removeUserIdentificationKyc,
+} = require('../controllers/kycController');
+
+const {addBillingMethod, 
+   retrieveBillingMethods, 
+   removeBillingCard, 
+   addWithdrawMethod,
+   retrieveWithdrawalMethods, 
+   removeWithdrawalAccount
 } = require('../controllers/PaymentController')
+
 const router = express.Router();
 const verify = require("../middlewares/verifyToken")
 const multer = require('multer');
@@ -50,4 +66,9 @@ router.delete('/payment/billingmethod/:id', verify, removeBillingCard);
 router.post('/payment/withdrawalmethod', verify, addWithdrawMethod);
 router.get('/payment/withdrawalmethods', verify, retrieveWithdrawalMethods);
 router.delete('/payment/withdrawalmethod/:id', verify, removeWithdrawalAccount);
+
+router.get('/kyc/get/identity', verify, retrieveUserIdentityKyc);
+router.get('/kyc/get/utility', verify, retrieveUserUtilityKyc);
+router.delete('/kyc/delete/identity/:id', verify, removeUserIdentificationKyc);
+router.delete('/kyc/delete/utility/:id', verify, removeUserUtilityKyc);
 module.exports = router;

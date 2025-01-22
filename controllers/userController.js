@@ -43,14 +43,14 @@ exports.changeAppearanceMode = async (req, res) => {
 exports.getProfileByUserId = async (req, res) => {
   const userId = parseInt(req.params.id);
 
-  try {
+  //try {
     const data = await User.getProfileByUserId(userId);
 
     if (data.length === 0) {
       return res.status(404).json({ status: 'error', message: 'User profile not found.' });
     }
 
-    const { id, phone, email, firstname, lastname, gender, notification_type, appearance_mode, photourl, bio, spark_token_balance, cash_balance, total_followers, total_following, created_at, updated_at } = data[0];
+    const { id, phone, email, firstname, lastname, gender, notification_type, appearance_mode, photourl, bio, spark_token_balance, cash_balance, total_followers, total_following, location, street, zip_code, created_at, updated_at } = data[0];
 
     // Map skills to an array
     const skills = data.map((item) => ({
@@ -75,15 +75,18 @@ exports.getProfileByUserId = async (req, res) => {
       cash_balance, 
       total_followers, 
       total_following,
+      location, 
+      street, 
+      zip_code,
       created_at,
       updated_at,
       skills,
     };
 
     res.status(200).json({ status: 'success', message: 'User profile retrieved successfully.', data: userProfile });
-  } catch (error) {
+  /* } catch (error) {
     res.status(500).json({ status: 'error', message: 'Failed to retrieve profile.' });
-  }
+  } */
 };
 
 

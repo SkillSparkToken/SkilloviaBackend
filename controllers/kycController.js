@@ -155,3 +155,71 @@ exports.retrieveApprovedUtilityKyc = async (req, res) => {
       res.status(500).json({status: 'error', message: 'Failed to retrieve kyc documents', data: error });
     }
 };
+
+
+// get identity kyc
+exports.retrieveUserIdentityKyc = async (req, res) => {
+  const method = 'identification';
+  const userId = req.user.id;
+
+  try {
+    const data = await Kyc.getUserKyc(userId, method);
+    if(data != null){
+      res.status(200).json({ status: 'success', message: 'kyc documents retrieved successfully.', data: data });
+    } else {
+      res.status(200).json({ status: 'success', message: 'No kyc document found', data: null });
+    }
+    
+  } catch (error) {
+    res.status(500).json({status: 'error', message: 'Failed to retrieve kyc documents', data: error });
+  }
+};
+
+
+
+// get utility kyc
+exports.retrieveUserUtilityKyc = async (req, res) => {
+  const method = 'utility-bill';
+  const userId = req.user.id;
+
+  try {
+    const data = await Kyc.getUserKyc(userId, method);
+    if(data != null){
+      res.status(200).json({ status: 'success', message: 'kyc documents retrieved successfully.', data: data });
+    } else {
+      res.status(200).json({ status: 'success', message: 'No kyc document found', data: null });
+    }
+    
+  } catch (error) {
+    res.status(500).json({status: 'error', message: 'Failed to retrieve kyc documents', data: error });
+  }
+};
+
+
+exports.removeUserUtilityKyc = async (req, res) => {
+  const userId = req.user.id;
+  const id = parseInt(req.params.id)   
+  const method = 'utility-bill';
+
+  try {
+  const data = await Kyc.deleteKyc(userId, id, method);
+  res.status(200).json({ status: 'success', message: 'KYC document removed successfully.', data: data });
+  } catch (error) {
+  res.status(500).json({status: 'error', message: 'Failed to remove KYC document.', data: error });
+  }
+};
+
+
+exports.removeUserIdentificationKyc = async (req, res) => {
+  const userId = req.user.id;
+  const id = parseInt(req.params.id)   
+  const method = 'identification';
+
+  try {
+  const data = await Kyc.deleteKyc(userId, id, method);
+  res.status(200).json({ status: 'success', message: 'KYC document removed successfully.', data: data });
+  } catch (error) {
+  res.status(500).json({status: 'error', message: 'Failed to remove KYC document.', data: error });
+  }
+};
+

@@ -34,6 +34,26 @@ class Messages {
         );
         return result.rows[0];
     }
+
+
+    static async retrieveChatUsers(userId) {
+        const result = await pool.query(
+            `SELECT DISTINCT 
+                u.id AS user_id,
+                (u.firstname || ' ' || u.lastname) AS name,
+                u.email,
+                u.photourl
+             FROM messages m
+             JOIN users u 
+                ON u.id = CASE 
+                            WHEN m.sender_id = $1 THEN m.receiver_id
+                            ELSE m.sender_id
+                          END
+             WHERE m.sender_id = $1 OR m.receiver_id = $1`,
+            [userId]
+        );
+        return result.rows;
+    }
 }
 
 
