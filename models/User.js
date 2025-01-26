@@ -1,3 +1,4 @@
+const { stat } = require('fs/promises');
 const pool = require('../config/db');
 const bcrypt = require('bcrypt');
 
@@ -7,8 +8,8 @@ class User {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
-      'INSERT INTO users (phone, email, firstname, lastname, gender, password) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
-      [phone, email, firstname, lastname, gender, hashedPassword]
+      'INSERT INTO users (phone, email, firstname, lastname, gender, password, is_email_verified) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *',
+      [phone, email, firstname, lastname, gender, hashedPassword, 1]
     );
     return result.rows[0];
   }
@@ -54,6 +55,15 @@ class User {
     const result = await pool.query(
       'SELECT * FROM users WHERE id = $1',
       [id]
+    );
+    return result.rows[0];
+  }
+
+
+  static async checkUserExist(phone, email) {
+    const result = await pool.query(
+      'SELECT * FROM users WHERE phone = $1 OR email = $2',
+      [phone, email]
     );
     return result.rows[0];
   }
@@ -114,21 +124,30 @@ class User {
     const result = await pool.query(
         `
         SELECT 
-            users.*, 
-            skills.description AS description,
-            skills.skill_type AS skill_type,
-            skills.experience_level AS experience_level,
-            skills.hourly_rate AS hourly_rate,
+          users.*,
 
-            COALESCE(account.spark_token_balance, 0) AS spark_token_balance,
-            COALESCE(account.cash_balance, 0) AS cash_balance,
+          JSON_AGG(
+              JSON_BUILD_OBJECT(
+                  'description', skills.description,
+                  'skill_type', skills.skill_type,
+                  'experience_level', skills.experience_level,
+                  'hourly_rate', skills.hourly_rate
+              )
+          ) FILTER (WHERE skills.id IS NOT NULL) AS skills,
 
-            (SELECT COUNT(*) FROM follows WHERE follows.following_id = users.id) AS total_followers,
-            (SELECT COUNT(*) FROM follows WHERE follows.follower_id = users.id) AS total_following
-        FROM users
-        INNER JOIN skills ON users.id = skills.user_id
-        LEFT JOIN account ON users.id = account.user_id
-        WHERE users.id = $1
+          COALESCE(account.spark_token_balance, 0) AS spark_token_balance,
+          COALESCE(account.cash_balance, 0) AS cash_balance,
+
+          (SELECT COUNT(*) FROM follows WHERE follows.following_id = users.id) AS total_followers,
+          (SELECT COUNT(*) FROM follows WHERE follows.follower_id = users.id) AS total_following
+      FROM users
+      LEFT JOIN skills ON users.id = skills.user_id
+      LEFT JOIN account ON users.id = account.user_id
+      WHERE users.id = $1
+      GROUP BY 
+        users.id, 
+        account.spark_token_balance, 
+        account.cash_balance;
         `,
         [id]
     );
@@ -161,6 +180,80 @@ static async updateBio(userId, data) {
   );
   return result.rows[0];
 }
+
+
+static async verifyEmail(email, code) {
+  const result = await pool.query(
+    'SELECT * FROM verifyemail WHERE email = $1 AND token = $2',
+    [email, code]
+  );
+  return result.rows[0];
+}
+
+
+static async insertVerificationCode(email, code) {
+  const result = await pool.query(
+  'INSERT INTO verifyemail (email, token) VALUES ($1,$2) RETURNING *',
+  [email, code]
+  );
+  return result.rows[0];
+}
+
+
+static async updateVerificationCode(email, code) {
+  const result = await pool.query(
+    `UPDATE verifyemail 
+     SET token = $1
+     WHERE email = $2 RETURNING *`,
+    [code, email]
+  );
+  return result.rows[0];
+}
+
+
+static async updateVerificationStatus(email, status) {
+  const result = await pool.query(
+    `UPDATE users 
+     SET is_email_verified = $1
+     WHERE email = $2 RETURNING *`,
+    [status, email]
+  );
+  return result.rows[0];
+}
+
+
+static async checkVerificationExist(email) {
+  const result = await pool.query(
+    'SELECT * FROM verifyemail WHERE email = $1',
+    [email]
+  );
+  return result.rows[0];
+}
+
+
+static async deleteUser(email) {
+  const result = await pool.query(
+      `DELETE FROM users 
+       WHERE email = $1 
+       RETURNING *`,
+      [email]
+  );
+
+  return result.rows[0];
+}
+
+
+static async updateCordinates(lat, lng, userId) {
+  const result = await pool.query(
+    `UPDATE users 
+     SET lat = COALESCE($1, lat),
+     lon = COALESCE($2, lon)
+     WHERE id = $3 RETURNING *`,
+    [lat, lng, userId]
+  );
+  return result.rows[0];
+}
+
 
 }
 

@@ -11,9 +11,13 @@ CREATE TABLE users (
   location VARCHAR(500),
   street VARCHAR(500),
   zip_code VARCHAR(30),
+  lat VARCHAR(255),
+  lon VARCHAR(255),
   notification_type ENUM('sms', 'email') NOT NULL DEFAULT 'sms',
   appearance_mode ENUM('light', 'dark', 'system') NOT NULL DEFAULT 'system',
   photourl VARCHAR(255),
+  verification_code VARCHAR(10),
+  is_email_verified INTEGER,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

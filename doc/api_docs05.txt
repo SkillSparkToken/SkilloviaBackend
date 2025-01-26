@@ -5,6 +5,8 @@ SKILL ROUTES
 
 AUTH ROUTES
 /api/auth/reset/password  (PUT - BODY: password, newPassword)
+/api/auth/resend/code   (POST  -  BODY: email)
+/api/auth/verify/email  (POST  -  BODY: email, code)
 
 USERS ROUTES
 /api/users/profile/update/bio (PUT - BODY: bio, location, street, zip_code) // this endpoint updates user bio

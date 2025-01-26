@@ -2,13 +2,29 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 const twilioConfig = require('../config/twilio');
+const Notifications = require("../mail/notifications");
+const { getClientIp } = require('../middlewares/ipgetter');
+const { getCoordinatesFromIp } = require('../utils/geolocation');
 
 
 // handles user registration
 const registerUser = async (req, res) => {
+  //const code = Math.floor(1000 + Math.random() * 9000);
+  //const email_verification_code = code;
+
   try {
-    const user = await User.create(req.body);
-    res.status(201).json({ status: 'success', message: 'User registered successfully.', data: user });
+    const check = await User.checkUserExist(req.body.phone, req.body.email);
+    if(check == null){
+      const user = await User.create(req.body);
+      res.status(201).json({ status: 'success', message: 'User registered successfully.', data: user });
+    
+      /* if (user != null) {
+        const data = {recepient_name: req.body.firstname, code: email_verification_code}
+        await Notifications.whenUserRegister(req.body.email, data)  
+      } */
+    } else {
+      res.status(400).json({ status: 'error', message: 'User with same email or phone number already exist.', data: null });
+    }
     
   } catch (error) {
     res.status(500).json({status: 'error', message: 'Registration failed.', data: error.detail });
@@ -20,6 +36,9 @@ const registerUser = async (req, res) => {
 const login = async (req, res) => {
   const {email, phone, password} = req.body
   let today = new Date().toISOString().slice(0, 10)
+
+  const clientIp = req.clientIp //|| '127.0.0.1';
+  const { lat, lng } = await getCoordinatesFromIp(clientIp);
 
   try {
     const user = await User.findByEmail(email);
@@ -42,6 +61,8 @@ const login = async (req, res) => {
 
       // Creates Secure Cookie with refresh token
       res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
+
+      await User.updateCordinates(lat, lng, user.id);
 
       res.status(200).send({
           status: 'success',
@@ -70,6 +91,8 @@ const login = async (req, res) => {
         // Creates Secure Cookie with refresh token
         res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
   
+        await User.updateCordinates(lat, lng, user.id);
+
         res.status(200).send({
             status: 'success',
             message: 'Login was successful',
@@ -201,14 +224,79 @@ const verifyPhone = async (req, res) => {
 };
 
 
+const verifyEmail = async (req, res) => {
+  const { email, code } = req.body;
+
+  try {
+    const data = await User.verifyEmail(email, code);
+    if(data != null){
+      res.status(200).json({ status: 'success', message: 'Verification was successfully.', data: data });
+      //await User.updateVerificationStatus(email, 1);
+    } else {
+      res.status(400).json({ status: 'error', message: 'Verification failed', data: null });
+    }
+  } catch (error) {
+    console.error('error:', error.message);
+    res.status(500).json({ status: 'error', message: 'An error occured. Try again', data: error.message });
+  }
+};
+
+
+const resendEmailVerirficationCode = async (req, res) => {
+  const { email } = req.body;
+  const code = Math.floor(1000 + Math.random() * 9000);
+
+  try {
+    if(email != null){
+      let user
+      const check = await User.checkVerificationExist(email);
+      if(check != null){
+        user = await User.updateVerificationCode(email, code);
+      } else{
+        user = await User.insertVerificationCode(email, code);
+      }
+      
+      const data = {recepient_name: 'there', code: code}
+      await Notifications.whenUserRegister(email, data) 
+
+      res.status(200).json({ status: 'success', message: 'Verification resent successfully.', data: user });
+    } 
+  } catch (error) {
+    console.error('error:', error.message);
+    res.status(500).json({ status: 'error', message: 'An error occured. Try again', data: error.message });
+  }
+};
+
+
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '24h'});
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '12h'});
 }
 
 
 function generateLongLiveAccessToken(user) {
-  return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '365d' } );
+  return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '2d' } );
 }
+
+
+const adminDelete = async (req, res) => {
+  const email = req.params.email
+
+  try {
+    const checkUser = await User.findByEmail(email);
+    if(checkUser == null){
+      return res.status(400).send({
+        status: 'error',
+        message: 'No user found',
+        data: null,
+      });
+    }
+    
+    const user = await User.deleteUser(email);
+    res.status(200).json({ status: 'success', message: 'User deleted successfully.', data: user });
+  } catch (error) {
+    res.status(500).json({status: 'error', message: 'Failed to delete user.', data: error });
+  }
+};
 
 
 
@@ -220,4 +308,7 @@ module.exports = {
   resetPassword,
   verifyPhone,
   sendVerificationCode,
+  verifyEmail,
+  resendEmailVerirficationCode,
+  adminDelete,
 }

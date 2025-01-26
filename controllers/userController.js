@@ -43,11 +43,11 @@ exports.changeAppearanceMode = async (req, res) => {
 exports.getProfileByUserId = async (req, res) => {
   const userId = parseInt(req.params.id);
 
-  //try {
+  try {
     const data = await User.getProfileByUserId(userId);
 
     if (data.length === 0) {
-      return res.status(404).json({ status: 'error', message: 'User profile not found.' });
+      return res.status(404).json({ status: 'error', message: 'User profile not found.', data: data });
     }
 
     const { id, phone, email, firstname, lastname, gender, notification_type, appearance_mode, photourl, bio, spark_token_balance, cash_balance, total_followers, total_following, location, street, zip_code, created_at, updated_at } = data[0];
@@ -84,9 +84,9 @@ exports.getProfileByUserId = async (req, res) => {
     };
 
     res.status(200).json({ status: 'success', message: 'User profile retrieved successfully.', data: userProfile });
-  /* } catch (error) {
+  } catch (error) {
     res.status(500).json({ status: 'error', message: 'Failed to retrieve profile.' });
-  } */
+  }
 };
 
 
