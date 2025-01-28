@@ -184,3 +184,46 @@ exports.changePassword = async (req, res) => {
   }
 };
 
+
+exports.nearByUsers = async (req, res) => {
+  const userId = req.user.id;
+  const lat = req.params.lat;
+  const lon = req.params.lon;
+
+  if (!lat || !lon) {
+    return res.status(400).send({
+      status: 'error',
+      message: 'Latitude and longitude are required',
+      data: null
+    });
+  }
+  const rad = 5
+  try {
+    const users = await User.findNearbyUsers(parseFloat(lat), parseFloat(lon), parseFloat(rad));
+    res.status(200).json({ status: 'success', message: 'Nearby users retrieved successful', data: users });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching nearby users', error: error.message });
+  }
+};
+
+
+exports.nearByUsers2 = async (req, res) => {
+  const userId = req.user.id;
+  const {lat, lon, radius} = req.body;
+
+  if (!lat || !lon) {
+    return res.status(400).send({
+      status: 'error',
+      message: 'Latitude and longitude are required',
+      data: null
+    });
+  }
+  const rad = 5
+  try {
+    const users = await User.findNearbyUsers(parseFloat(lat), parseFloat(lon), parseFloat(rad));
+    res.status(200).json({ status: 'success', message: 'Nearby users retrieved successful', data: users });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching nearby users', error: error.message });
+  }
+};
+

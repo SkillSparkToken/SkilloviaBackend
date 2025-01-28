@@ -13,6 +13,7 @@ CREATE TABLE users (
   zip_code VARCHAR(30),
   lat VARCHAR(255),
   lon VARCHAR(255),
+  radius VARCHAR(50)
   notification_type ENUM('sms', 'email') NOT NULL DEFAULT 'sms',
   appearance_mode ENUM('light', 'dark', 'system') NOT NULL DEFAULT 'system',
   photourl VARCHAR(255),

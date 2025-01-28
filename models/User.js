@@ -243,15 +243,44 @@ static async deleteUser(email) {
 }
 
 
-static async updateCordinates(lat, lng, userId) {
+static async updateCordinates(lat, lng, radius, date, userId) {
   const result = await pool.query(
     `UPDATE users 
      SET lat = COALESCE($1, lat),
-     lon = COALESCE($2, lon)
-     WHERE id = $3 RETURNING *`,
-    [lat, lng, userId]
+     lon = COALESCE($2, lon),
+     radius = COALESCE($3, radius),
+     location_updated_at = COALESCE($4, location_updated_at)
+     WHERE id = $5 RETURNING *`,
+    [lat, lng, radius, date, userId]
   );
   return result.rows[0];
+}
+
+
+static async findNearbyUsers(lat, lon, radius = 5) {
+  
+  const result = await pool.query(
+  `SELECT id, firstname, lastname, lat, lon, email, phone, gender, photourl,
+      (
+        6371 * acos(
+          cos(radians($1)) * cos(radians(lat)) *
+          cos(radians(lon) - radians($2)) +
+          sin(radians($1)) * sin(radians(lat))
+        )
+      ) AS distance
+    FROM users
+    WHERE (
+      6371 * acos(
+        cos(radians($1)) * cos(radians(lat)) *
+        cos(radians(lon) - radians($2)) +
+        sin(radians($1)) * sin(radians(lat))
+      )
+    ) <= $3
+    ORDER BY distance;`,
+    [lat, lon, radius]
+  );
+  
+  return result.rows
 }
 
 

@@ -37,9 +37,6 @@ const login = async (req, res) => {
   const {email, phone, password} = req.body
   let today = new Date().toISOString().slice(0, 10)
 
-  const clientIp = req.clientIp //|| '127.0.0.1';
-  const { lat, lng } = await getCoordinatesFromIp(clientIp);
-
   try {
     const user = await User.findByEmail(email);
     
@@ -53,7 +50,7 @@ const login = async (req, res) => {
           }); 
       } 
 
-      const accessToken = generateAccessToken({id:user.id, email:user.email, phone:user.phone});
+      const accessToken = generateAccessToken({id:user.id, email:user.email, phone:user.phone, lat:user.lat});
       const refreshToken = jwt.sign({id:user.id, email:user.email, phone:user.phone}, process.env.REFRESH_TOKEN_SECRET);
       
       // Store refresh token
@@ -62,7 +59,23 @@ const login = async (req, res) => {
       // Creates Secure Cookie with refresh token
       res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
 
-      await User.updateCordinates(lat, lng, user.id);
+      const currentDate = new Date().toISOString();
+      
+      if(user.location_updated_at){
+        const lastUpdated = new Date(user.location_updated_at.replace(' ', 'T'));
+        const diffInMs = Math.abs(currentDate - lastUpdated);  // Calculate the difference in milliseconds
+        const diffInDays = diffInMs / (1000 * 60 * 60 * 24);  // Convert milliseconds to days
+
+        if (diffInDays > 3) {
+          const clientIp = req.clientIp
+          const { lat, lng, accuracy } = await getCoordinatesFromIp(clientIp);
+          await User.updateCordinates(lat, lng, accuracy, currentDate, user.id);
+        }
+      } else {
+        const clientIp = req.clientIp
+        const { lat, lng, accuracy } = await getCoordinatesFromIp(clientIp);
+        await User.updateCordinates(lat, lng, accuracy, currentDate, user.id);
+      }
 
       res.status(200).send({
           status: 'success',
@@ -82,21 +95,37 @@ const login = async (req, res) => {
             }); 
         } 
   
-        const accessToken = generateAccessToken({id:user.id, email:user.email, phone:user.phone});
-        const refreshToken = jwt.sign({id:user.id, email:user.email, phone:user.phone}, process.env.REFRESH_TOKEN_SECRET);
+        const accessToken = generateAccessToken({id:user.id, email:user.email, phone:user.phone, lat:user.lat, lon:user.lon});
+        const refreshToken = jwt.sign({id:user.id, email:user.email, phone:user.phone, lat:user.lat, lon:user.lon}, process.env.REFRESH_TOKEN_SECRET);
   
         // Store refresh token
         const storereFreshToken = await User.storeRefreshToken(refreshToken);
   
         // Creates Secure Cookie with refresh token
         res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
-  
-        await User.updateCordinates(lat, lng, user.id);
 
+        const currentDate = new Date().toISOString();
+
+        if(user.location_updated_at){
+          const lastUpdated = new Date(user.location_updated_at);
+          const diffInMs = Math.abs(currentDate - lastUpdated);  // Calculate the difference in milliseconds
+          const diffInDays = diffInMs / (1000 * 60 * 60 * 24);  // Convert milliseconds to days
+
+          if (diffInDays > 3) {
+            const clientIp = req.clientIp //|| '127.0.0.1';
+            const { lat, lng, accuracy } = await getCoordinatesFromIp(clientIp);
+            await User.updateCordinates(lat, lng, accuracy, currentDate, user.id);
+          }
+        } else {
+          const clientIp = req.clientIp
+          const { lat, lng, accuracy } = await getCoordinatesFromIp(clientIp);
+          await User.updateCordinates(lat, lng, accuracy, currentDate, user.id);
+        }
+        
         res.status(200).send({
-            status: 'success',
-            message: 'Login was successful',
-            data: {accessToken: accessToken, refreshToken:refreshToken}
+          status: 'success',
+          message: 'Login was successful',
+          data: {accessToken: accessToken, refreshToken:refreshToken}
         });
       } else {
         res.status(400).send({
@@ -121,7 +150,7 @@ const refreshToken = async (req, res) => {
 
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (error, user) => {
       if(error) return res.sendStatus(403)
-      const accessToken = generateLongLiveAccessToken({id:user.id, email:user.email, phone:user.phone})
+      const accessToken = generateLongLiveAccessToken({id:user.id, email:user.email, phone:user.phone, lat:user.lat, lon:user.lon})
 
       res.status(200).send({
           status: 'success',
@@ -143,7 +172,7 @@ const refreshTokenWeb = async (req, res) => {
 
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (error, user) => {
       if(error) return res.json(error)
-      const accessToken = generateLongLiveAccessToken({id:user.id, email:user.email, phone:user.phone})
+      const accessToken = generateLongLiveAccessToken({id:user.id, email:user.email, phone:user.phone, lat:user.lat, lon:user.lon})
       
       // Store refresh token
       const storereFreshToken = User.storeRefreshToken(accessToken);

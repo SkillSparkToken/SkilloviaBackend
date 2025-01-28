@@ -55,7 +55,7 @@ passport.use(
 
                 // Generate JWT token
                 const token = jwt.sign(
-                    { id: user.id, email: user.email },
+                    { id:user.id, email:user.email, lat:user.lat, lon:user.lon },
                     process.env.ACCESS_TOKEN_SECRET,
                     { expiresIn: '1h' }
                 );

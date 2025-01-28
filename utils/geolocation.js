@@ -19,7 +19,8 @@ async function getCoordinatesFromIp(ip) {
 
     if (response.data.location) {
       const { lat, lng } = response.data.location;
-      return { lat, lng };
+      const { accuracy } = response.data;
+      return { lat, lng, accuracy};
     } else {
       throw new Error('Unable to fetch location');
     }
