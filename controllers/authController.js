@@ -50,8 +50,8 @@ const login = async (req, res) => {
           }); 
       } 
 
-      const accessToken = generateAccessToken({id:user.id, email:user.email, phone:user.phone, lat:user.lat});
-      const refreshToken = jwt.sign({id:user.id, email:user.email, phone:user.phone}, process.env.REFRESH_TOKEN_SECRET);
+      const accessToken = generateAccessToken({id:user.id, email:user.email, phone:user.phone, lat:user.lat, lon:user.lon, role_id:user.role_id});
+      const refreshToken = jwt.sign({id:user.id, email:user.email, phone:user.phone, lat:user.lat, lon:user.lon, role_id:user.role_id}, process.env.REFRESH_TOKEN_SECRET);
       
       // Store refresh token
       const storereFreshToken = await User.storeRefreshToken(refreshToken);
@@ -95,8 +95,8 @@ const login = async (req, res) => {
             }); 
         } 
   
-        const accessToken = generateAccessToken({id:user.id, email:user.email, phone:user.phone, lat:user.lat, lon:user.lon});
-        const refreshToken = jwt.sign({id:user.id, email:user.email, phone:user.phone, lat:user.lat, lon:user.lon}, process.env.REFRESH_TOKEN_SECRET);
+        const accessToken = generateAccessToken({id:user.id, email:user.email, phone:user.phone, lat:user.lat, lon:user.lon, role_id:user.role_id});
+        const refreshToken = jwt.sign({id:user.id, email:user.email, phone:user.phone, lat:user.lat, lon:user.lon, role_id:user.role_id}, process.env.REFRESH_TOKEN_SECRET);
   
         // Store refresh token
         const storereFreshToken = await User.storeRefreshToken(refreshToken);
@@ -150,7 +150,7 @@ const refreshToken = async (req, res) => {
 
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (error, user) => {
       if(error) return res.sendStatus(403)
-      const accessToken = generateLongLiveAccessToken({id:user.id, email:user.email, phone:user.phone, lat:user.lat, lon:user.lon})
+      const accessToken = generateLongLiveAccessToken({id:user.id, email:user.email, phone:user.phone, lat:user.lat, lon:user.lon, role_id:user.role_id})
 
       res.status(200).send({
           status: 'success',
@@ -172,7 +172,7 @@ const refreshTokenWeb = async (req, res) => {
 
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (error, user) => {
       if(error) return res.json(error)
-      const accessToken = generateLongLiveAccessToken({id:user.id, email:user.email, phone:user.phone, lat:user.lat, lon:user.lon})
+      const accessToken = generateLongLiveAccessToken({id:user.id, email:user.email, phone:user.phone, lat:user.lat, lon:user.lon, role_id:user.role_id})
       
       // Store refresh token
       const storereFreshToken = User.storeRefreshToken(accessToken);

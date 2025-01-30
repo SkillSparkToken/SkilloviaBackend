@@ -14,6 +14,7 @@ const suggestskillRoutes = require('./routes/suggestskillRoutes');
 const followRoutes = require('./routes/followRoutes');
 const settingsRoute = require('./routes/settingsRoute');
 const messageRoute = require('./routes/messageRoute');
+const adminRoutes = require('./routes/adminRoutes');
 const chatSocketHandler = require('./sockets/chat');
 
 require('./passport');
@@ -68,6 +69,7 @@ app.use('/api/suggestedskills', suggestskillRoutes);
 app.use('/api/follows', followRoutes);
 app.use('/api/settings', settingsRoute);
 app.use('/api/message', messageRoute);
+app.use('/api/admin', adminRoutes);
 
 // Server
 const PORT = process.env.PORT || 3000;

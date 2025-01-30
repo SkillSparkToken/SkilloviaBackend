@@ -19,6 +19,7 @@ CREATE TABLE users (
   photourl VARCHAR(255),
   verification_code VARCHAR(10),
   is_email_verified INTEGER,
+  role_id INTEGER,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
