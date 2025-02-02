@@ -137,6 +137,105 @@ class Admin {
     }
 
 
+    
+    /* static async getProfileByUserId(id) {
+        const result = await pool.query(
+            `
+            SELECT 
+                users.*,
+      
+                COALESCE(
+                    JSON_AGG(
+                        JSON_BUILD_OBJECT(
+                            'description', skills.description,
+                            'skill_type', skills.skill_type,
+                            'experience_level', skills.experience_level,
+                            'hourly_rate', skills.hourly_rate,
+                            'thumbnail01', skills.thumbnail01,
+                            'thumbnail02', skills.thumbnail02,
+                            'thumbnail03', skills.thumbnail03,
+                            'thumbnail04', skills.thumbnail04
+                        )
+                    ) FILTER (WHERE skills.id IS NOT NULL), 
+                    '[]'
+                ) AS skills,
+      
+                COALESCE(account.spark_token_balance, 0) AS spark_token_balance,
+                COALESCE(account.cash_balance, 0) AS cash_balance,
+      
+                (SELECT COUNT(*) FROM follows WHERE follows.following_id = users.id) AS total_followers,
+                (SELECT COUNT(*) FROM follows WHERE follows.follower_id = users.id) AS total_following
+      
+            FROM users
+            LEFT JOIN skills ON users.id = skills.user_id
+            LEFT JOIN account ON users.id = account.user_id
+            WHERE users.id = $1
+      
+            GROUP BY users.id, account.spark_token_balance, account.cash_balance;
+            `,
+            [id]
+        );
+        return result.rows;
+    } */
+
+
+    static async getProfileByUserId(id) {
+        const result = await pool.query(
+            `
+            SELECT 
+                users.*,
+    
+                COALESCE(
+                    JSON_AGG(
+                        JSON_BUILD_OBJECT(
+                            'description', skills.description,
+                            'skill_type', skills.skill_type,
+                            'experience_level', skills.experience_level,
+                            'hourly_rate', skills.hourly_rate,
+                            'thumbnail01', skills.thumbnail01,
+                            'thumbnail02', skills.thumbnail02,
+                            'thumbnail03', skills.thumbnail03,
+                            'thumbnail04', skills.thumbnail04
+                        )
+                    ) FILTER (WHERE skills.id IS NOT NULL), 
+                    '[]'
+                ) AS skills,
+    
+                COALESCE(
+                    JSON_AGG(
+                        JSON_BUILD_OBJECT(
+                            'kyc_method', kyc.kyc_method,
+                            'kyc_id_type', kyc.kyc_id_type,
+                            'document_url', kyc.document_url,
+                            'approval_status', kyc.approval_status,
+                            'uploaded_date', kyc.updated_at
+                        )
+                    ) FILTER (WHERE kyc.id IS NOT NULL), 
+                    '[]'
+                ) AS kyc,
+    
+                COALESCE(account.spark_token_balance, 0) AS spark_token_balance,
+                COALESCE(account.cash_balance, 0) AS cash_balance,
+    
+                (SELECT COUNT(*) FROM follows WHERE follows.following_id = users.id) AS total_followers,
+                (SELECT COUNT(*) FROM follows WHERE follows.follower_id = users.id) AS total_following
+    
+            FROM users
+            LEFT JOIN skills ON users.id = skills.user_id
+            LEFT JOIN account ON users.id = account.user_id
+            LEFT JOIN kyc ON users.id = kyc.user_id  -- Added KYC join
+    
+            WHERE users.id = $1
+    
+            GROUP BY users.id, account.spark_token_balance, account.cash_balance;
+            `,
+            [id]
+        );
+        return result.rows;
+    }        
+
+
+
     static async changeUserRole(id, roleId) {
         const result = await pool.query(
         `UPDATE users

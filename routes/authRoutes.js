@@ -33,7 +33,7 @@ router.get(
             data: {accessToken: token, refreshToken:token},
         }); */
 
-        res.redirect(`/explore?accessToken=${token}&refreshToken=${token}`);
+        res.redirect(`https://skilloviaweb.vercel.app/explore?accessToken=${token}&refreshToken=${token}`);
     }
 );
 

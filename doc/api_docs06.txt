@@ -10,6 +10,7 @@ ADMIN ROUTES
 /api/admin/users/create/account/:user_id (PUT  -  BODY: email, firstname, lastname, gender, password) 
 /api/admin/users/get/all (GET) 
 /api/admin/users/change/role/:user_id (PUT  -  BODY: roleId) 
+api/admin/users/get/profile/user_id
 
 /api/admin/kyc/approve/:id (PUT) 
 /api/admin/kyc/reject/:id (PUT) 

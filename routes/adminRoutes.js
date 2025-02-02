@@ -1,6 +1,6 @@
 const express = require('express');
 const { publishSkill, unPublishSkill, deleteSkill, retrievePublishedSkill, retrieveUnpublishedSkill,
-    retrieveUserSkills, registerUser, updateUser, getAllusers, changeUserRole, approveKycStatus, rejectKycStatus,
+    retrieveUserSkills, registerUser, updateUser, getAllusers, getProfileByUserId, changeUserRole, approveKycStatus, rejectKycStatus,
     retrieveUserKyc, retrievePendingKyc, retrieveApprovedKyc, removeKyc
 } = require('../controllers/adminController');
 const router = express.Router();
@@ -21,6 +21,7 @@ router.post('/users/create/account', verify, isAdmin, registerUser);
 router.put('/users/update/account/:id', verify, isAdmin, updateUser);
 router.get('/all/users', verify, isAdmin, getAllusers);
 router.get('/users/get/all', verify, isAdmin, getAllusers);
+router.get('/users/get/profile/:id', verify, isAdmin, getProfileByUserId);
 router.put('/users/change/role/:user_id', verify, isAdmin, changeUserRole);
 
 router.put('/kyc/approve/:id', verify, isAdmin, approveKycStatus);

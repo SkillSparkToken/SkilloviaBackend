@@ -35,7 +35,7 @@ passport.use(
                 let user;
 
                 // Check if user exists
-                const res = await pool.query('SELECT * FROM users WHERE google_id = $1', [profile.id]);
+                const res = await pool.query('SELECT * FROM users WHERE email = $1', [profile.emails[0].value]);
                 if (res.rows.length > 0) {
                     user = res.rows[0];
                 } else {

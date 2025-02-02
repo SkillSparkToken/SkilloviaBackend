@@ -44,7 +44,7 @@ class User {
                 users.phone,
                 follows.created_at AS date
             FROM follows 
-            INNER JOIN users ON follows.following_id = users.id
+            INNER JOIN users ON follows.follower_id = users.id
             WHERE follows.following_id = $1
             `,
             [userId]
@@ -65,7 +65,7 @@ class User {
                 users.phone,
                 follows.created_at AS date
             FROM follows 
-            INNER JOIN users ON follows.follower_id = users.id
+            INNER JOIN users ON follows.following_id = users.id
             WHERE follows.follower_id = $1
             `,
             [userId]

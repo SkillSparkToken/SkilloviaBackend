@@ -37,9 +37,9 @@ const storage = multer.diskStorage({
   filename: function (req, file, callback) {
      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
      const filename = uniqueSuffix + path.extname(file.originalname);
-     const filePath = path.join(__dirname + '/uploads/files', filename); // Construct the file path
+     const filePath = path.join(__dirname + '/uploads/files', filename);
 
-     // Store the file path in req
+     // Stores the file path in req
      if (!req.filePaths) {
         req.filePaths = null;
      }

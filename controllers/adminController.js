@@ -252,3 +252,67 @@ exports.removeKyc = async (req, res) => {
   }
 };
 
+
+exports.getProfileByUserId = async (req, res) => {
+  const userId = parseInt(req.params.id);
+
+  try {
+    const data = await Admin.getProfileByUserId(userId);
+
+    if (data.length === 0) {
+      return res.status(404).json({ status: 'error', message: 'User profile not found.', data: data });
+    }
+
+    const { id, phone, email, firstname, lastname, gender, notification_type, appearance_mode, photourl, bio, spark_token_balance, cash_balance, total_followers, total_following, location, street, zip_code, created_at, updated_at} = data[0];
+
+    // Map skills to an array
+    const skills = data[0].skills.map((item) => ({
+      description: item.description,
+      skill_type: item.skill_type,
+      experience_level: item.experience_level,
+      hourly_rate: item.hourly_rate,
+      thumbnail01: item.thumbnail01,
+      thumbnail02: item.thumbnail02,
+      thumbnail03: item.thumbnail03,
+      thumbnail04: item.thumbnail04
+    }));
+
+     // Map kyc to an array
+     const kyc = data[0].kyc.map((item) => ({
+      kyc_method: item.kyc_method,
+      kyc_id_type: item.kyc_id_type,
+      document_url: item.document_url,
+      approval_status: item.approval_status,
+      uploaded_date: item.uploaded_date
+    }));
+
+    const userProfile = {
+      id,
+      phone,
+      email,
+      firstname,
+      lastname,
+      gender,
+      notification_type,
+      appearance_mode,
+      photourl,
+      bio,
+      spark_token_balance, 
+      cash_balance, 
+      total_followers, 
+      total_following,
+      location, 
+      street, 
+      zip_code,
+      created_at,
+      updated_at,
+      skills:skills,
+      kyc:kyc
+    };
+
+    res.status(200).json({ status: 'success', message: 'User profile retrieved successfully.', data: userProfile });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: 'Failed to retrieve profile.' });
+  }
+};
+

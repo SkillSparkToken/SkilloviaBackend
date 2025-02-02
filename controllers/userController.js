@@ -58,6 +58,10 @@ exports.getProfileByUserId = async (req, res) => {
       skill_type: item.skill_type,
       experience_level: item.experience_level,
       hourly_rate: item.hourly_rate,
+      thumbnail01: item.thumbnail01,
+      thumbnail02: item.thumbnail02,
+      thumbnail03: item.thumbnail03,
+      thumbnail04: item.thumbnail04
     }));
 
     const userProfile = {
@@ -109,6 +113,10 @@ exports.getBasiceProfileByUserId = async (req, res) => {
       skill_type: item.skill_type,
       experience_level: item.experience_level,
       hourly_rate: item.hourly_rate,
+      thumbnail01: item.thumbnail01,
+      thumbnail02: item.thumbnail02,
+      thumbnail03: item.thumbnail03,
+      thumbnail04: item.thumbnail04
     }));
 
     const userProfile = {

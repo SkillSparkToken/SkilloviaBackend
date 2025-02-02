@@ -2,19 +2,23 @@ const Follows = require('../models/Follows');
 
 exports.followAccount = async (req, res) => {
     const userId = req.user.id;
-  const follower_id = parseInt(req.params.follower_id);
+    const follower_id = parseInt(req.params.follower_id);
 
-  try {
-    const check = await Follows.checkFollower(userId, follower_id);
-    if(check == null){
-        const user = await Follows.follow(userId, follower_id);
-        res.status(200).json({ status: 'success', message: 'followed successfully.', data: user });
-    } else {
-        res.status(200).json({ status: 'success', message: 'already following this account', data: null });
+    try {
+        if(userId == follower_id){
+            res.status(400).json({ status: 'error', message: 'Cannot follow yourself', data: null });
+        } else {
+            const check = await Follows.checkFollower(userId, follower_id);
+            if(check == null){
+                const user = await Follows.follow(userId, follower_id);
+                res.status(200).json({ status: 'success', message: 'followed successfully.', data: user });
+            } else {
+                res.status(200).json({ status: 'success', message: 'already following this account', data: null });
+            }
+        }
+    } catch (error) {
+        res.status(500).json({status: 'error', message: 'Failed to follow user.' });
     }
-  } catch (error) {
-    res.status(500).json({status: 'error', message: 'Failed to follow user.' });
-  }
 };
 
 

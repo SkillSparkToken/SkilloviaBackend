@@ -15,6 +15,7 @@ const followRoutes = require('./routes/followRoutes');
 const settingsRoute = require('./routes/settingsRoute');
 const messageRoute = require('./routes/messageRoute');
 const adminRoutes = require('./routes/adminRoutes');
+const bookingsRoutes = require('./routes/bookingsRoutes');
 const chatSocketHandler = require('./sockets/chat');
 
 require('./passport');
@@ -70,6 +71,7 @@ app.use('/api/follows', followRoutes);
 app.use('/api/settings', settingsRoute);
 app.use('/api/message', messageRoute);
 app.use('/api/admin', adminRoutes);
+app.use('/api/bookings', bookingsRoutes);
 
 // Server
 const PORT = process.env.PORT || 3000;
