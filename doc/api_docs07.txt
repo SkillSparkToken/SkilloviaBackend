@@ -1,0 +1,8 @@
+BOOKINGS ROUTES
+/api/bookings (POST  -  BODY: skills_id, booked_user_id, title, description, booking_location, booking_date, file) 
+/api/bookings/:id (PUT  -  BODY:  title, description, booking_location, booking_date, file) 
+/api/bookings/accept/:id (PUT)
+/api/bookings/reject/:id (PUT)
+/api/bookings/get/user/inward  (GET)
+/api/bookings/get/user/outward  (GET)
+/api/bookings/:id (DELETE)

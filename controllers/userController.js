@@ -54,6 +54,7 @@ exports.getProfileByUserId = async (req, res) => {
 
     // Map skills to an array
     const skills = data[0].skills.map((item) => ({
+      skill_id: item.skill_id,
       description: item.description,
       skill_type: item.skill_type,
       experience_level: item.experience_level,
@@ -109,6 +110,7 @@ exports.getBasiceProfileByUserId = async (req, res) => {
 
     // Map skills to an array
     const skills = data[0].skills.map((item) => ({
+      skill_id: item.skill_id,
       description: item.description,
       skill_type: item.skill_type,
       experience_level: item.experience_level,

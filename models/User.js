@@ -164,6 +164,7 @@ static async getProfileByUserId(id) {
           COALESCE(
               JSON_AGG(
                   JSON_BUILD_OBJECT(
+                      'skill_id', skills.id,
                       'description', skills.description,
                       'skill_type', skills.skill_type,
                       'experience_level', skills.experience_level,
