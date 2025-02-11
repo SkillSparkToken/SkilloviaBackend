@@ -23,3 +23,5 @@ ADMIN ROUTES
 /api/admin/skills/add/category  (POST - BODY: title, description, thumbnail)
 /api/admin/skills/get/categories (GET)
 
+SKILL ROUTES
+/api/skills/get/categories

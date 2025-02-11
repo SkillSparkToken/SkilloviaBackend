@@ -9,7 +9,8 @@ const {  createSkill,
    updatePublishedStatus, 
    retrieveUserSkill,
    deleteSkillPhoto,
-   searchSkillsByType
+   searchSkillsByType,
+   getSkillCategory
 } = require('../controllers/skillController');
 const router = express.Router();
 const verify = require("../middlewares/verifyToken")
@@ -53,5 +54,6 @@ router.get('/searchsparktoken/:term', verify, searchSkillsBySparktoken);
 router.get('/search/type/:term', verify, searchSkillsByType);
 router.get('/user/all', verify, retrieveUserSkill);
 router.delete('/photo/:id', verify, deleteSkillPhoto);
+router.get('/get/categories', verify, getSkillCategory);
 
 module.exports = router;

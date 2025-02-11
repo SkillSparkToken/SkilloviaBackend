@@ -1,3 +1,4 @@
+const Skill = require('../models/Skill');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 
@@ -366,4 +367,5 @@ exports.getReferredUsers = async (req, res) => {
     res.status(500).json({ message: 'Error fetching users', error: error.message });
   }
 };
+
 

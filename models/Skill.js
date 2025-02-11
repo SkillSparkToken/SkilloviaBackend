@@ -263,6 +263,20 @@ class Skill {
         );
         return result.rows;
     }
+
+
+    static async getSkillCategory(status) {
+        const result = await pool.query(
+            `
+            SELECT 
+                *
+            FROM skills_category
+            WHERE status = $1
+            `,
+            [status]
+        );
+        return result.rows;
+    }
     
 
 }
