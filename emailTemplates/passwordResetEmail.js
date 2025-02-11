@@ -23,7 +23,7 @@ module.exports = (recepient_name, token, link, year) => `
         }
         .header {
             background-color: #8FF15F;
-            color: #ffffff;
+            color: #000000;
             padding: 20px;
             text-align: center;
         }
@@ -78,18 +78,18 @@ module.exports = (recepient_name, token, link, year) => `
         </div>
         <div class="content">
             <h2>Hello, ${recepient_name}!</h2>
-            <p>We received a request to reset your password. Use the code below to proceed:</p>
-            <div style="text-align: center; font-size: 24px; font-weight: bold; color:rgb(1, 4, 77); margin: 20px 0;">
-                ${token}
+            <p style="font-size: 16px">We received a request to reset your password. Use the link below to proceed:</p>
+            <div style="font-size: 12px; color:rgb(5, 11, 180); margin: 20px 0;">
+                <a href="${link}"> ${link} </a>
             </div>
 
-            <p>If you didn’t initiate this request, you can safely ignore this message.</p>
+            <p style="font-weight: bold">If you didn’t initiate this request, you can safely ignore this message.</p>
         </div>
         <div class="footer">
             <p>© ${year} Skillovia. All rights reserved.</p>
             <p>
-                <a href="${link}">Privacy Policy</a> |
-                <a href="${link}">Terms of Service</a>
+                <a href="#">Privacy Policy</a> |
+                <a href="#">Terms of Service</a>
             </p>
         </div>
     </div>

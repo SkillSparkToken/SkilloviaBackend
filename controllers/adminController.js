@@ -316,3 +316,52 @@ exports.getProfileByUserId = async (req, res) => {
   }
 };
 
+
+// add skill category
+exports.addSkillCategory = async (req, res) => {
+  const data = req.body;
+
+  if(req.filePaths != null){
+    const filePath = req.filePaths;
+    const thumbnail = filePath.slice(15);
+
+    try {
+      const skill = await Admin.addSkillCategory(data, thumbnail);
+      res.status(200).json({ 
+        status: 'success', 
+        message: 'Skill category created successfully.', 
+        data: skill 
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        status: 'error', 
+        message: 'Failed to create skill.', 
+        data: error 
+      });
+    }
+  } else {
+    res.status(400).send({
+        status: 'error',
+        message: 'No image found',
+        data: null
+    });
+  }
+};
+
+
+// get skill category
+exports.getSkillCategory = async (req, res) => {
+  const status = 'published';
+
+  try {
+    const data = await Admin.getSkillCategory(status);
+    if(data != null){
+      res.status(200).json({ status: 'success', message: 'skills retrieved successfully.', data: data });
+    } else {
+      res.status(200).json({ status: 'success', message: 'No skill found', data: null });
+    }
+    
+  } catch (error) {
+    res.status(500).json({status: 'error', message: 'Failed to retrieve skills', data: error });
+  }
+};

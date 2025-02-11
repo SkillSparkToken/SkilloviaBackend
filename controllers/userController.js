@@ -50,7 +50,7 @@ exports.getProfileByUserId = async (req, res) => {
       return res.status(404).json({ status: 'error', message: 'User profile not found.', data: data });
     }
 
-    const { id, phone, email, firstname, lastname, gender, notification_type, appearance_mode, photourl, bio, spark_token_balance, cash_balance, total_followers, total_following, location, street, zip_code, created_at, updated_at} = data[0];
+    const { id, phone, email, firstname, lastname, gender, notification_type, appearance_mode, photourl, bio, spark_token_balance, cash_balance, total_followers, total_following, location, street, zip_code, created_at, updated_at, referral_code, website} = data[0];
 
     // Map skills to an array
     const skills = data[0].skills.map((item) => ({
@@ -83,6 +83,8 @@ exports.getProfileByUserId = async (req, res) => {
       location, 
       street, 
       zip_code,
+      referral_code,
+      website,
       created_at,
       updated_at,
       skills:skills,
@@ -106,7 +108,7 @@ exports.getBasiceProfileByUserId = async (req, res) => {
       return res.status(404).json({ status: 'error', message: 'User profile not found.', data: data });
     }
 
-    const { id, phone, email, firstname, lastname, gender, notification_type, appearance_mode, photourl, bio, total_followers, total_following, location, street, zip_code } = data[0];
+    const { id, phone, email, firstname, lastname, gender, notification_type, appearance_mode, photourl, bio, total_followers, total_following, location, street, zip_code, referral_code, website } = data[0];
 
     // Map skills to an array
     const skills = data[0].skills.map((item) => ({
@@ -137,6 +139,8 @@ exports.getBasiceProfileByUserId = async (req, res) => {
       location, 
       street, 
       zip_code,
+      referral_code,
+      website,
       skills: skills,
     };
 
@@ -145,6 +149,24 @@ exports.getBasiceProfileByUserId = async (req, res) => {
     res.status(500).json({ status: 'error', message: 'Failed to retrieve profile.' });
   }
 };
+
+
+exports.getBasiceProfileByUserName = async (req, res) => {
+  const name = req.params.name;
+
+  try {
+    const data = await User.getProfileByUserName(name);
+
+    if (data.length === 0) {
+      return res.status(404).json({ status: 'error', message: 'User profile not found.', data: data });
+    }
+
+    res.status(200).json({ status: 'success', message: 'User profile retrieved successfully.', data: data });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: 'Failed to retrieve profile.' });
+  }
+};
+
 
 
 exports.profilePhotoUpload = async (req, res) => {
@@ -301,6 +323,39 @@ exports.getAllusers = async (req, res) => {
 
   try {
     const users = await User.getAllusers();
+    if(users && users.length > 0){
+      res.status(200).json({ status: 'success', message: 'users retrieved successful', data: users });
+    } else{
+      res.status(200).json({ status: 'success', message: 'No user found', data: null });
+    }
+    
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching users', error: error.message });
+  }
+};
+
+
+
+exports.generateReferralCode = async (req, res) => {
+  const userId = req.user.id;
+  const code = Math.floor(1000 + Math.random() * 900000);
+  const referralCode = `skv${code}`
+
+  try {
+    const users = await User.setReferralCode(userId, referralCode);
+    res.status(200).json({ status: 'success', message: 'user referral code updated successful', data: users });
+    
+  } catch (error) {
+    res.status(500).json({ message: 'Error updateing referral code', error: error.message });
+  }
+};
+
+
+exports.getReferredUsers = async (req, res) => {
+  const code = req.params.code;
+
+  try {
+    const users = await User.getUsersByReferralCode(code);
     if(users && users.length > 0){
       res.status(200).json({ status: 'success', message: 'users retrieved successful', data: users });
     } else{

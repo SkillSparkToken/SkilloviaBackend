@@ -20,6 +20,9 @@ CREATE TABLE users (
   verification_code VARCHAR(10),
   is_email_verified INTEGER,
   role_id INTEGER,
+  referred_by VARCHAR(50),
+  referral_code VARCHAR(50),
+  website VARCHAR(150),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

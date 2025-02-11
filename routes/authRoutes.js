@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerUser, login, refreshToken, refreshTokenWeb, resetPassword, verifyPhone, sendVerificationCode, verifyEmail, resendEmailVerirficationCode, adminDelete} = require('../controllers/authController');
+const { registerUser, login, refreshToken, refreshTokenWeb, resetPassword, changePassword, verifyPhone, sendVerificationCode, verifyEmail, resendEmailVerirficationCode, adminDelete, forgotPassword} = require('../controllers/authController');
 const passport = require('passport');
 const router = express.Router();
 const { getClientIp } = require('../middlewares/ipgetter');
@@ -10,12 +10,14 @@ router.post('/login', getClientIp, login);
 router.delete('/user/:email', adminDelete);
 router.get('/get/refreshtoken', refreshToken);
 router.get('/get/refreshtokenweb', refreshTokenWeb);
-router.put('/reset/password/:id', resetPassword);
-router.put('/reset/password', resetPassword);
+router.put('/reset/password/:id', changePassword);
+router.put('/reset/password', changePassword);
 router.post('/sendverificationcode', sendVerificationCode);
 router.post('/verifyphone', verifyPhone);
 router.post('/verify/email', verifyEmail);
 router.post('/resend/code', resendEmailVerirficationCode);
+router.post('/forgot/password', forgotPassword);
+router.post('/reset/forgot/password', resetPassword);
 
 
 // Redirect to Google for authentication

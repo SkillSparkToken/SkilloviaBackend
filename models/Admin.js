@@ -307,6 +307,38 @@ class Admin {
         return result.rows[0];
     }
 
+
+    static async addSkillCategory(data, thumbnail) {
+        const { title, description } = data;
+        const status = 'published';
+        
+        const result = await pool.query(
+            `
+            INSERT INTO skills_category (
+            title, description, thumbnail, status
+            ) VALUES ($1, $2, $3, $4) 
+            RETURNING *
+            `,
+            [title, description, thumbnail, status ]
+        );
+        
+        return result.rows[0];
+    }
+
+
+    static async getSkillCategory(status) {
+        const result = await pool.query(
+            `
+            SELECT 
+                *
+            FROM skills_category
+            WHERE status = $1
+            `,
+            [status]
+        );
+        return result.rows;
+    }
+
 }
 
 

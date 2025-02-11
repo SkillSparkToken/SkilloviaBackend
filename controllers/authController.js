@@ -189,7 +189,7 @@ const refreshTokenWeb = async (req, res) => {
 }
 
 
-const resetPassword = async (req, res) => {
+const changePassword = async (req, res) => {
   const userId = parseInt(req.params.id);
   const {password, newPassword} = req.body
 
@@ -328,6 +328,69 @@ const adminDelete = async (req, res) => {
 };
 
 
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Check if user exists
+    const user = await User.findByEmail(email);
+    if (user == null) {
+      return res.status(404).json({ status: 'error', message: 'User not found', data: null });
+    }
+
+    const userId = user.id;
+    const token = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+
+    // Store token in DB
+    await User.storeResetPasswordToken(userId, token);
+
+    // Send Reset Email
+    const resetLink = `${process.env.FRONTEND_URL}/forgot-psw?token=${token}`;
+    const data = {recepient_name: user.firstname, link:resetLink, code:token}
+    await Notifications.whenPasswordReset(email, data) 
+
+    res.status(200).json({ status: 'success', message: 'Password reset link sent to your email', data: email });
+
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
+const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    // Verify token
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const userId = decoded.userId;
+
+    // Check if token is valid
+    const tokenQuery = await User.getPasswordResetTokens(token, userId);
+    if (tokenQuery  == null) {
+      return res.status(400).json({ status: 'error', message: 'Invalid or expired token', data: null });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password in DB
+    await User.resetPassword(userId, hashedPassword);
+
+    // Delete the used token
+    await User.deletePasswordResetTokens(token);
+
+    res.status(200).json({status: 'success', message: 'Password updated successfully', data: [] });
+
+  } catch (error) {
+      console.error(error);
+      res.status(400).json({ status: 'error', message: 'Invalid or expired token', data: null });
+  }
+};
+
+
 
 module.exports = {
   registerUser,
@@ -340,4 +403,6 @@ module.exports = {
   verifyEmail,
   resendEmailVerirficationCode,
   adminDelete,
+  forgotPassword,
+  changePassword,
 }

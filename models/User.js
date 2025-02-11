@@ -4,19 +4,21 @@ const bcrypt = require('bcrypt');
 
 class User {
   static async create(data) {
-    const {phone, email, firstname, lastname, gender, password } = data;
+    const {phone, email, firstname, lastname, gender, password, referred_by} = data;
     const hashedPassword = await bcrypt.hash(password, 10);
+    const code = Math.floor(1000 + Math.random() * 900000);
+    const referralCode = firstname + code
 
     const result = await pool.query(
-      'INSERT INTO users (phone, email, firstname, lastname, gender, password, is_email_verified) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *',
-      [phone, email, firstname, lastname, gender, hashedPassword, 1]
+      'INSERT INTO users (phone, email, firstname, lastname, gender, password, is_email_verified, referral_code, referred_by) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
+      [phone, email, firstname, lastname, gender, hashedPassword, 1, referralCode, referred_by]
     );
     return result.rows[0];
   }
 
 
   static async update(userId, updates) {
-    const { email, firstname, lastname, gender, password } = updates;
+    const { email, firstname, lastname, gender, password, location, street, zip_code, lat, lon, referred_by, website } = updates;
     const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
 
     const result = await pool.query(
@@ -25,9 +27,16 @@ class User {
            firstname = COALESCE($2, firstname),
            lastname = COALESCE($3, lastname),
            gender = COALESCE($4, gender),
-           password = COALESCE($5, password)
-       WHERE id = $6 RETURNING *`,
-      [email, firstname, lastname, gender, hashedPassword, userId]
+           password = COALESCE($5, password),
+           location = COALESCE($6, location),
+           street = COALESCE($7, street),
+           zip_code = COALESCE($8, zip_code),
+           lat = COALESCE($9, lat),
+           lon = COALESCE($10, lon),
+           referred_by = COALESCE($11, referred_by),
+           website = COALESCE($12, website)
+       WHERE id = $13 RETURNING *`,
+      [email, firstname, lastname, gender, hashedPassword, location, street, zip_code, lat, lon, referred_by, website, userId]
     );
     return result.rows[0];
   }
@@ -195,6 +204,49 @@ static async getProfileByUserId(id) {
   );
   return result.rows;
 }
+
+
+
+static async getProfileByUserName(name) {
+  const result = await pool.query(
+      `
+      SELECT 
+          users.*,
+
+          COALESCE(
+              JSON_AGG(
+                  JSON_BUILD_OBJECT(
+                      'skill_id', skills.id,
+                      'description', skills.description,
+                      'skill_type', skills.skill_type,
+                      'experience_level', skills.experience_level,
+                      'hourly_rate', skills.hourly_rate,
+                      'thumbnail01', skills.thumbnail01,
+                      'thumbnail02', skills.thumbnail02,
+                      'thumbnail03', skills.thumbnail03,
+                      'thumbnail04', skills.thumbnail04
+                  )
+              ) FILTER (WHERE skills.id IS NOT NULL), 
+              '[]'
+          ) AS skills,
+
+          COALESCE(account.spark_token_balance, 0) AS spark_token_balance,
+          COALESCE(account.cash_balance, 0) AS cash_balance,
+
+          (SELECT COUNT(*) FROM follows WHERE follows.following_id = users.id) AS total_followers,
+          (SELECT COUNT(*) FROM follows WHERE follows.follower_id = users.id) AS total_following
+
+      FROM users
+      LEFT JOIN skills ON users.id = skills.user_id
+      LEFT JOIN account ON users.id = account.user_id
+      WHERE (users.firstname || ' ' || users.lastname) ILIKE $1 
+
+      GROUP BY users.id, account.spark_token_balance, account.cash_balance;
+      `,
+      [`%${name}%`]
+  );
+  return result.rows;
+}
   
 
 
@@ -348,6 +400,55 @@ static async getAllusers() {
     'SELECT * FROM users'
   );
   return result.rows;
+}
+
+
+static async setReferralCode(userId, code) {
+  const result = await pool.query(
+    `UPDATE users 
+     SET referral_code = COALESCE($1, referral_code)
+     WHERE id = $2 RETURNING *`,
+    [code, userId]
+  );
+  return result.rows[0];
+}
+
+
+static async getUsersByReferralCode(code) {
+  const result = await pool.query(
+    'SELECT * FROM users WHERE referred_by = $1',
+    [code]
+  );
+  return result.rows[0];
+}
+
+
+static async storeResetPasswordToken(userId, token) {
+  const result = await pool.query(
+    'INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, NOW() + INTERVAL \'1 hour\') RETURNING token',
+    [userId, token]
+  );
+  return result.rows[0];
+}
+
+
+static async getPasswordResetTokens(token, userId) {
+  const result = await pool.query(
+    'SELECT * FROM password_reset_tokens WHERE token = $1 AND user_id = $2',
+    [token, userId]
+  );
+  return result.rows[0];
+}
+
+
+static async deletePasswordResetTokens(token) {
+  const result = await pool.query(
+      `DELETE FROM password_reset_tokens 
+       WHERE token = $1`,
+      [token]
+  );
+
+  return result.rows[0];
 }
 
 

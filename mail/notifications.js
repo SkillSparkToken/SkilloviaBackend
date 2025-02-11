@@ -32,8 +32,7 @@ class Notifications {
 
 
     async whenPasswordReset(send_to, data ) {
-        const {recepient_name, token} = data
-        const link = `${this.#siteUrl}/dashboard`
+        const {recepient_name, link, token} = data
 
         const mailOptions = {
             from: '"Skillovia" <noreply@testapi.humanserve.net>',
