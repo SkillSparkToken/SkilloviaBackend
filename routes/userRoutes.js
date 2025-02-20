@@ -2,7 +2,7 @@ const express = require('express');
 const { updateUser, changeAppearanceMode, changeNotificationType, getProfileByUserId, 
    profilePhotoUpload, profilePhotoUploadS3, updateBio, changePassword, nearByUsers, 
    nearByUsersByAddress, getBasiceProfileByUserId, getBasiceProfileByUserName,
-   generateReferralCode, getReferredUsers} = require('../controllers/userController');
+   generateReferralCode, getReferredUsers, getUserNotifications} = require('../controllers/userController');
 const router = express.Router();
 const verify = require("../middlewares/verifyToken")
 const multer = require('multer');
@@ -49,5 +49,6 @@ router.get('/people/nearby/:lat/:lon', verify, nearByUsers);
 router.get('/searchuser/:name', verify, getBasiceProfileByUserName);
 router.put('/generate/referralcode', verify, generateReferralCode);
 router.get('/get/myreferred/:code', verify, getReferredUsers);
+router.get('/get/notifications', verify, getUserNotifications);
 
 module.exports = router;

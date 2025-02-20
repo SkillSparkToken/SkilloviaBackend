@@ -369,3 +369,20 @@ exports.getReferredUsers = async (req, res) => {
 };
 
 
+exports.getUserNotifications = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const noti = await User.getUserNotifications(userId);
+    if(noti && noti.length > 0){
+      res.status(200).json({ status: 'success', message: 'Notifications successful', data: noti });
+    } else{
+      res.status(200).json({ status: 'success', message: 'No record found', data: null });
+    }
+    
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching Notifications', error: error.message });
+  }
+};
+
+

@@ -164,6 +164,23 @@ exports.searchSkillsByName = async (req, res) => {
 };
 
 
+exports.searchUsersBySkillType = async (req, res) => {
+  const searchTerm = req.params.term  
+
+  try {
+    const skill = await Skill.searchUsersBySkillType(searchTerm);
+    if(skill && skill.length > 0){
+      res.status(200).json({ status: 'success', message: 'Search result retrieved successfully.', data: skill });
+    } else {
+      res.status(200).json({ status: 'success', message: 'No record found', data: null });
+    }
+  } catch (error) {
+    res.status(500).json({status: 'error', message: 'Failed to retrieve skills', data: error });
+  }
+};
+
+
+
 exports.searchSkillsByCreatorName = async (req, res) => {
   const searchTerm = req.params.term  
 

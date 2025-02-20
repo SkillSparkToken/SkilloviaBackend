@@ -345,7 +345,7 @@ const forgotPassword = async (req, res) => {
     await User.storeResetPasswordToken(userId, token);
 
     // Send Reset Email
-    const resetLink = `${process.env.FRONTEND_URL}/forgot-psw?token=${token}`;
+    const resetLink = `${process.env.FRONTEND_URL}/reset-psw?token=${token}`;
     const data = {recepient_name: user.firstname, link:resetLink, code:token}
     await Notifications.whenPasswordReset(email, data) 
 

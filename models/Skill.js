@@ -265,6 +265,28 @@ class Skill {
     }
 
 
+    static async searchUsersBySkillType(skillType) {
+        const result = await pool.query(
+            `
+            SELECT DISTINCT ON (users.id)
+                users.id, 
+                (users.firstname || ' ' || users.lastname) AS creator_name, 
+                users.email AS creator_email,
+                users.photourl,
+                users.phone,
+                skills.skill_type
+            FROM skills 
+            INNER JOIN users ON skills.user_id = users.id
+            WHERE skills.skill_type ILIKE $1 
+            AND skills.approval_status = 'published'
+            ORDER BY users.id, skills.created_at DESC
+            `,
+            [`%${skillType}%`]
+        );
+        return result.rows;        
+    }
+
+
     static async getSkillCategory(status) {
         const result = await pool.query(
             `
