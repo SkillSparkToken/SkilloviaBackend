@@ -1,6 +1,7 @@
 const Skill = require('../models/Skill');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const { createConnectedAccount, generateAccountLink, processSplitPayment } = require('../utils/stripe');
 
 exports.updateUser = async (req, res) => {
   const userId = req.params.id;
@@ -382,6 +383,118 @@ exports.getUserNotifications = async (req, res) => {
     
   } catch (error) {
     res.status(500).json({ message: 'Error fetching Notifications', error: error.message });
+  }
+};
+
+
+exports.createStripeAccount = async (req, res) => {
+  const userId = req.user.id;
+  const email = req.user.email
+
+  if(userId != null){
+    try {
+      const check = await User.checkStripeAccountExist(userId);
+
+      if(check == null){
+        const account = await createConnectedAccount(email);
+
+        if(account){
+          const user = await User.createStripeAccount(userId, account.id);
+          res.status(201).json({ status: 'success', message: 'Stripe account created successfully.', data: user });
+        }
+      } else {
+        res.status(400).json({ status: 'error', message: 'User already has a stripe account', data: null });
+      }
+      
+    } catch (error) {
+      res.status(500).json({status: 'error', message: 'Account creation failed.', data: error.detail });
+    } 
+  }
+};
+
+
+exports.generateStripeAccountLink = async (req, res) => {
+  const userId = req.user.id;
+  const {stripeAccountId} = req.body
+
+  if(stripeAccountId != null){
+    try {
+      const account = await generateAccountLink(stripeAccountId);
+
+      if(account){
+        res.status(200).json({ status: 'success', message: 'Onboarding link generated successfully', data: account });
+      }
+      
+    } catch (error) {
+      res.status(500).json({status: 'error', message: 'Failed to generate onboarding link', data: error.detail });
+    } 
+  } else {
+    res.status(400).json({ status: 'error', message: 'Account is required', data: null });
+  }
+};
+
+
+exports.processSplitPayment = async (req, res) => {
+  const userId = req.user.id;
+  const {customerEmail, amount, currency, stripeAccountId} = req.body
+
+  if(stripeAccountId != null && amount != null && currency != null && customerEmail != null){
+    try {
+      const paymentIntent = await processSplitPayment(customerEmail, amount, currency, stripeAccountId);
+
+      if(paymentIntent){
+        res.status(200).json({ status: 'success', message: 'Payment Intent Created Successfully', data: paymentIntent });
+      }
+      
+    } catch (error) {
+      res.status(500).json({status: 'error', message: 'Failed to generate Payment Intent', data: error.detail });
+    } 
+  } else {
+    res.status(400).json({ status: 'error', message: 'customerEmail, amount, currency, stripeAccountId are required', data: null });
+  }
+};
+
+
+exports.updateStripeAccount = async (req, res) => {
+  const {chargesEnabled, payoutsEnabled, detailsSubmitted, stripeAccountId} = req.body
+  
+  try {
+    const account = await User.updateStripeAccount(chargesEnabled, payoutsEnabled, detailsSubmitted, stripeAccountId);
+    res.status(200).json({ status: 'success', message: 'Stripe account updated successfully', data: account });
+  } catch (error) {
+    res.status(500).json({status: 'error', message: 'Failed to update Stripe account' });
+  }
+};
+
+
+exports.deleteStripeAccount = async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  try {
+    const mode = await User.deleteStripeAccount(id);
+    res.status(200).json({ status: 'success', message: 'Account deleted successfully.', data: mode });
+  } catch (error) {
+    res.status(500).json({status: 'error', message: 'Failed to delete account.' });
+  } 
+};
+
+
+exports.getUserStripeAccount = async (req, res) => {
+  const userId = parseInt(req.params.userId);
+
+  if(userId != null){
+    try {
+      const check = await User.checkStripeAccountExist(userId);
+
+      if(check != null){
+        res.status(200).json({ status: 'success', message: 'Stripe account retrieved successfully.', data: check });
+      } else {
+        res.status(400).json({ status: 'error', message: 'No stripe account found for this user', data: null });
+      }
+      
+    } catch (error) {
+      res.status(500).json({status: 'error', message: 'Account retrieval failed.', data: error.detail });
+    }
   }
 };
 

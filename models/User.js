@@ -461,6 +461,45 @@ class User {
   }
 
 
+  static async createStripeAccount(user_id, stripe_account_id) {
+    const result = await pool.query(
+    'INSERT INTO stripe_account (user_id, stripe_account_id) VALUES ($1,$2) RETURNING *',
+    [user_id, stripe_account_id]
+    );
+    return result.rows[0];
+  }
+
+
+  static async checkStripeAccountExist(user_id) {
+    const result = await pool.query(
+      'SELECT * FROM stripe_account WHERE user_id = $1',
+      [user_id]
+    );
+    return result.rows[0];
+  }
+
+
+  static async deleteStripeAccount(id) {
+    const result = await pool.query(
+        `DELETE FROM stripe_account WHERE id = $1`,
+        [id]
+    );
+
+    return result.rows[0];
+  }
+
+
+  static async updateStripeAccount(charges_enabled, payouts_enabled, details_submitted, stripe_account_id) {
+    const result = await pool.query(
+      `UPDATE stripe_account 
+      SET charges_enabled = COALESCE($1, charges_enabled),
+      SET payouts_enabled = COALESCE($2, payouts_enabled),
+      SET details_submitted = COALESCE($3, details_submitted)
+      WHERE stripe_account_id = $4 RETURNING *`,
+      [charges_enabled, payouts_enabled, details_submitted, stripe_account_id]
+    );
+    return result.rows[0];
+  }
 
 }
 

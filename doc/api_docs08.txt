@@ -1,0 +1,6 @@
+STRIPE ROUTES
+api/users/stripe/create/connected/account (POST)
+api/users/stripe/connected/account/link   (POST  BODY:  stripeAccountId)
+api/users/stripe/update/account   (PUT  -  BODY: chargesEnabled, payoutsEnabled, detailsSubmitted, stripeAccountId)
+api/users/stripe/payment/intent   (POST  BODY:  customerEmail, amount, currency, stripeAccountId)
+api/users/stripe/get/account/:userId  (GET) 

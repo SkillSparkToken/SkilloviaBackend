@@ -2,12 +2,14 @@ const express = require('express');
 const { updateUser, changeAppearanceMode, changeNotificationType, getProfileByUserId, 
    profilePhotoUpload, profilePhotoUploadS3, updateBio, changePassword, nearByUsers, 
    nearByUsersByAddress, getBasiceProfileByUserId, getBasiceProfileByUserName,
-   generateReferralCode, getReferredUsers, getUserNotifications} = require('../controllers/userController');
+   generateReferralCode, getReferredUsers, getUserNotifications, createStripeAccount, deleteStripeAccount, 
+   generateStripeAccountLink, processSplitPayment, updateStripeAccount, getUserStripeAccount} = require('../controllers/userController');
 const router = express.Router();
 const verify = require("../middlewares/verifyToken")
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const { getClientIp } = require('../middlewares/ipgetter');
 //const uploads3 = require('../upload/index');
 
 
@@ -50,5 +52,12 @@ router.get('/searchuser/:name', verify, getBasiceProfileByUserName);
 router.put('/generate/referralcode', verify, generateReferralCode);
 router.get('/get/myreferred/:code', verify, getReferredUsers);
 router.get('/get/notifications', verify, getUserNotifications);
+router.post('/stripe/create/connected/account', verify, createStripeAccount);
+router.delete('/delete/connected/account/:id', verify, deleteStripeAccount);
+router.post('/stripe/connected/account/link', verify, generateStripeAccountLink);
+router.post('/stripe/payment/intent', verify, processSplitPayment);
+router.put('/stripe/update/account', verify, updateStripeAccount);
+router.get('/stripe/get/account/:userId', verify, getUserStripeAccount);
+
 
 module.exports = router;
