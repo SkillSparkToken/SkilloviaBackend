@@ -26,7 +26,10 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'http://localhost:19006',
-  'https://skilloviaweb.vercel.app'
+  'http://localhost:5172',
+  'https://skilloviaweb.vercel.app',
+  'https://skilloviaadmin.vercel.app',
+  'https://www.skilloviaadmin.vercel.app'
 ];
 
 app.use(
