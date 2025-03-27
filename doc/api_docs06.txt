@@ -1,0 +1,25 @@
+ADMIN ROUTES
+/api/admin/skills/publish/:id (PUT) 
+/api/admin/skills/unpublish/:id (PUT) 
+/api/admin/skills/delete/:id (DELETE) 
+/api/admin/skills/get/published (GET) 
+/api/admin/skills/get/unpublished (GET) 
+/api/admin/skills/user/:id' (GET) 
+
+/api/admin/users/create/account (POST  -  BODY: phone, email, firstname, lastname, gender, password) 
+/api/admin/users/create/account/:user_id (PUT  -  BODY: email, firstname, lastname, gender, password) 
+/api/admin/users/get/all (GET) 
+/api/admin/users/change/role/:user_id (PUT  -  BODY: roleId) 
+api/admin/users/get/profile/user_id
+
+/api/admin/kyc/approve/:id (PUT) 
+/api/admin/kyc/reject/:id (PUT) 
+/api/admin/kyc/user/:user_id (GET) 
+/api/admin/kyc/pending (GET) 
+/api/admin/kyc/approved (GET) 
+/api/admin/kyc/delete/:id (DELETE) 
+
+
+USERS ROUTES
+/api/users/people/within/:address (GET) 
+/api/users/basic/profile/:id (GET) 

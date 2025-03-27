@@ -1,0 +1,27 @@
+BOOKINGS ROUTES
+/api/bookings (POST  -  BODY: skills_id, booked_user_id, title, description, booking_location, booking_date, file) 
+/api/bookings/:id (PUT  -  BODY:  title, description, booking_location, booking_date, file) 
+/api/bookings/accept/:id (PUT)
+/api/bookings/reject/:id (PUT)
+/api/bookings/get/user/inward  (GET)
+/api/bookings/get/user/outward  (GET)
+/api/bookings/:id (DELETE)
+
+USERS ROUTES
+api/users/searchuser/:name (GET)
+api/users/update/:id (PUT  -  BODY: email, firstname, lastname, gender, password, location, street, zip_code, lat, lon, referred_by, referral_code, website)
+api/users/generate/referralcode (PUT)
+api/users/get/myreferred/:code (GET)
+
+AUTH ROUTES
+/api/auth/register (POST - BODY: phone, email, firstname, lastname, gender, password, referred_by )
+/api/auth/forgot/password  (POST  -  BODY:  email)
+/api/auth/reset/forgot/password (POST  -  BODY:  token, newPassword)
+
+
+ADMIN ROUTES
+/api/admin/skills/add/category  (POST - BODY: title, description, thumbnail)
+/api/admin/skills/get/categories (GET)
+
+SKILL ROUTES
+/api/skills/get/categories
