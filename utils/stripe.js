@@ -56,10 +56,11 @@ const processSplitPayment = async (customerEmail, amount, currency, connectedAcc
   try {
     // Calculate platform fee (4% of the total amount)
     const platformFee = Math.floor(amount * 0.04 * 100); // Convert to cents
+    const totalAmount = (amount * 100) + platformFee
 
     // Create a Payment Intent with destination charge and application fee
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100,
+      amount: totalAmount,
       currency: currency,
       payment_method_types: ['card'],
       receipt_email: customerEmail,
