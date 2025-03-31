@@ -369,7 +369,7 @@ class User {
   }
 
   static async updateBio(userId, data) {
-    const { bio, location, street, zip_code, lon, lat } = data;
+    const { bio, location, street, zip_code, lon, lat, user } = data;
 
     const result = await pool.query(
       `UPDATE users 
@@ -380,7 +380,7 @@ class User {
           lon = COALESCE($5, lon),
           lat = COALESCE($6, lat)
       WHERE id = $7 RETURNING *`,
-      [bio, location, street, zip_code, lon, lat, userId]
+      [bio, location, street, zip_code, lon, lat, user]
     );
     return result.rows[0];
   }
@@ -453,30 +453,37 @@ class User {
     return result.rows[0];
   }
 
+
   static async findNearbyUsers(lat, lon, radius = 5) {
     const result = await pool.query(
       `SELECT id, firstname, lastname, lat, lon, email, phone, gender, photourl,
         (
           6371 * acos(
-            cos(radians($1)) * cos(radians(lat)) *
-            cos(radians(lon) - radians($2)) +
-            sin(radians($1)) * sin(radians(lat))
+            LEAST(GREATEST(
+              cos(radians($1)) * cos(radians(lat)) *
+              cos(radians(lon) - radians($2)) +
+              sin(radians($1)) * sin(radians(lat))
+            , -1), 1)
           )
         ) AS distance
       FROM users
       WHERE (
         6371 * acos(
-          cos(radians($1)) * cos(radians(lat)) *
-          cos(radians(lon) - radians($2)) +
-          sin(radians($1)) * sin(radians(lat))
+          LEAST(GREATEST(
+            cos(radians($1)) * cos(radians(lat)) *
+            cos(radians(lon) - radians($2)) +
+            sin(radians($1)) * sin(radians(lat))
+          , -1), 1)
         )
       ) <= $3
-      ORDER BY distance;`,
+      ORDER BY distance;
+      `,
       [lat, lon, radius]
     );
 
     return result.rows;
   }
+
 
   static async findNearbyUsersByAddress(address) {
     const result = await pool.query(
