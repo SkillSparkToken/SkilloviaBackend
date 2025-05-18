@@ -1,0 +1,20 @@
+SKILL ROUTES
+/api/skills (GET)   // this endpoint get the published skills
+/api/skills/searchname/:term (GET)
+/api/skills/searchcreator/:term (GET)
+/api/skills/searchsparktoken/:term (GET)
+/api/skills/publish/:skillId (PUT)     // Change a skill status to published
+
+
+SUGGESTED SKILL ROUTES
+/api/suggestedskills (POST - BODY: name)
+/api/suggestedskills/:id (PUT - BODY: status)
+/api/suggestedskills/:id (DELETE)
+/api/suggestedskills/bystatus/:status (GET - [status: 'pending', 'rejected', 'accepted'])
+
+
+FOLLOWS ROUTES
+/api/follows/follow/:following_id  (POST)
+/api/follows/unfollow/:following_id (DELETE)
+/api/follows/getfollowers (GET)
+/api/follows/getfollowings (GET)

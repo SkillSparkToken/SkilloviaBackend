@@ -1,0 +1,26 @@
+SKILL ROUTES
+/api/skills/user/all (GET)   // this endpoint get user skills
+/api/skills/photo/:skill_id (DELETE  -  BODY: key {thumbnail01, thumbnail02, thumbnail03, thumbnail04})   // this endpoint get user skills photo
+/api/skills/search/type/:term   (GET)
+
+AUTH ROUTES
+/api/auth/reset/password  (PUT - BODY: password, newPassword)
+/api/auth/resend/code   (POST  -  BODY: email)
+/api/auth/verify/email  (POST  -  BODY: email, code)
+
+USERS ROUTES
+/api/users/profile/update/bio (PUT - BODY: bio, location, street, zip_code) // this endpoint updates user bio
+api/users/change/password (PUT - BODY: password, newPassword)
+
+SETTINGS ROUTES
+/api/kyc/get/identity  (GET)
+/api/kyc/get/utility  (GET)
+/api/kyc/delete/identity/:id  (DELETE)
+/api/kyc/delete/utility/:id   (DELETE)
+
+MESSAGE ROUTES
+/api/message/chat/history/users  (GET)  // get user chats
+
+Review ROUTES
+/api/reviews (POST)
+/api/reviews (GET)

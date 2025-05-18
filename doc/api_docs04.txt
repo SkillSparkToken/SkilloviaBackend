@@ -1,0 +1,9 @@
+MESSAGE ROUTES
+/api/message (POST - BODY: senderId, receiverId, content)   // For testing purposes
+/api/message/:senderId/:receiverId   (GET)
+/api/message/markasread/:messageId  (PUT)
+
+
+Guide for Frontend Integration (React Native Example)
+
+https://docs.google.com/document/d/1Cy2UvgPd26QP_fki3R8Tsi7yGd33NgIS_Tch3cpfUCg/edit?usp=sharing

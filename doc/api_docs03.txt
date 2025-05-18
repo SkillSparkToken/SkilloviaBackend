@@ -1,0 +1,24 @@
+USER ROUTES
+/api/users/profile/:user_id  (GET)
+/api/users/profile/upload (PUT - BODY: photo )
+
+
+AUTH ROUTES
+/api/auth/google (GET)
+
+
+SETTINGS ROUTES
+/api/settings/kyc/upload/identity   (POST - BODY: type, file   [type:  'residence-permit','driving-license','international-passport','utility-bill'])
+/api/settings/kyc/upload/utility    (POST - BODY: file)
+/api/settings/kyc/admin/approve   (PUT  - BODY: status, user_id  [status: 'pending', 'rejected', 'approved'])
+/api/settings/kyc/user/approve/status  (GET)
+/api/settings/kyc/admin/id/pending  (GET)
+/api/settings/kyc/admin/utility/pending  (GET)
+/api/settings/kyc/admin/id/approved   (GET)
+/api/settings/kyc/admin/utility/approved  (GET)
+/api/settings/payment/billingmethod  (POST  -  BODY: card_number, expiry_date, cvv, address, city, postal_code )
+/api/settings/payment/billingmethods  (GET)
+/api/settings/payment/billingmethod/:id   (DELETE)
+/api/settings/payment/withdrawalmethod   (POST  -  BODY:  bank_name, account_number, account_name)
+/api/settings/payment/withdrawalmethods   (GET)
+/api/settings/payment/withdrawalmethod/:id   (DELETE)
